@@ -1,3 +1,17 @@
+/* Pun viewport za rute (Intro / Home) */
+.app-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;

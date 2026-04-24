@@ -9,10 +9,12 @@ function HomePlaceholder() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Intro />} />
-        <Route path="/home" element={<HomePlaceholder />} />
-      </Routes>
+      <div className="app-root">
+        <Routes>
+          <Route path="/" element={<Intro />} />
+          <Route path="/home" element={<HomePlaceholder />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   );
 }
