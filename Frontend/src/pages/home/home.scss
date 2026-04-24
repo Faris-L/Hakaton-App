@@ -1,0 +1,192 @@
+@use "../../styles/variables" as *;
+
+@keyframes bgShift {
+  0%   { background-position: 0% 50%, 0% 0%, 0% 50%; }
+  50%  { background-position: 100% 50%, 0% 0%, 100% 50%; }
+  100% { background-position: 0% 50%, 0% 0%, 0% 50%; }
+}
+
+// ── Theme tokens ──────────────────────────────────────────────────────────────
+
+.home--medicine {
+  --theme-primary:     #{$med-primary};
+  --theme-glow:        #{rgba($med-primary, 0.35)};
+  --theme-border:      #{rgba($med-primary, 0.25)};
+  --theme-primary-dim: #{rgba($med-primary, 0.12)};
+  --theme-blob:        #{rgba($med-primary, 0.07)};
+}
+
+.home--psychology {
+  --theme-primary:     #{$psy-primary};
+  --theme-glow:        #{rgba($psy-primary, 0.35)};
+  --theme-border:      #{rgba($psy-primary, 0.25)};
+  --theme-primary-dim: #{rgba($psy-primary, 0.12)};
+  --theme-blob:        #{rgba($psy-primary, 0.07)};
+}
+
+.home--economy {
+  --theme-primary:     #{$eco-primary};
+  --theme-glow:        #{rgba($eco-primary, 0.35)};
+  --theme-border:      #{rgba($eco-primary, 0.25)};
+  --theme-primary-dim: #{rgba($eco-primary, 0.12)};
+  --theme-blob:        #{rgba($eco-primary, 0.07)};
+}
+
+.home--it {
+  --theme-primary:     #{$it-primary};
+  --theme-glow:        #{rgba($it-primary, 0.35)};
+  --theme-border:      #{rgba($it-primary, 0.25)};
+  --theme-primary-dim: #{rgba($it-primary, 0.12)};
+  --theme-blob:        #{rgba($it-primary, 0.07)};
+}
+
+// ── Layout ────────────────────────────────────────────────────────────────────
+
+.home {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+}
+
+.home__bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 55% 50% at 8% 15%,  var(--theme-blob, rgba(0,0,0,0.04)) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 55% at 92% 85%, var(--theme-blob, rgba(0,0,0,0.04)) 0%, transparent 60%),
+    linear-gradient(-45deg, #f9fafb, #f3f4f8, #f7f8fb, #f0f2f7, #f9fafb);
+  background-size: 100% 100%, 100% 100%, 400% 400%;
+  animation: bgShift 14s ease infinite;
+  pointer-events: none;
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+
+.home__main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.25rem, 3vw, 2rem) clamp(2rem, 4vw, 3rem);
+  gap: 3rem;
+}
+
+// ── Header / Logo ─────────────────────────────────────────────────────────────
+
+.home__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.home__logo-wrap {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+
+  svg {
+    display: block;
+    width: min(360px, 72vw);
+    height: auto;
+  }
+}
+
+.home__heading {
+  font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--text-h, #0f1117);
+  text-align: center;
+  margin: 0;
+}
+
+// ── Grid ──────────────────────────────────────────────────────────────────────
+
+.home__grid {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1060px;
+
+  &:has(.home-card:hover) .home-card:not(:hover) {
+    transform: scale(0.91) rotate(var(--rot, 0deg));
+    opacity: 0.5;
+  }
+
+  @media (max-width: 720px) {
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &:has(.home-card:hover) .home-card:not(:hover) {
+      transform: scale(0.96);
+      opacity: 0.6;
+    }
+  }
+}
+
+// ── Card ──────────────────────────────────────────────────────────────────────
+
+.home-card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1.6rem 1.8rem;
+  border-radius: 24px;
+  border: none;
+  background: var(--theme-primary);
+  box-shadow:
+    0 8px 28px var(--theme-glow),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transform: rotate(var(--rot, 0deg));
+  transition:
+    transform 0.42s cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 0.35s ease,
+    box-shadow 0.42s ease,
+    filter 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1) rotate(0deg) translateY(-10px);
+    box-shadow:
+      0 20px 60px var(--theme-glow),
+      0 8px 24px rgba(0, 0, 0, 0.12);
+    filter: brightness(1.07);
+    z-index: 5;
+  }
+}
+
+.home-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.home-card__emoji {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4.5rem;
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+.home-card__desc {
+  font-size: 0.83rem;
+  line-height: 1.55;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+}

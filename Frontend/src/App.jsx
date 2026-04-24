@@ -1,10 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Intro from "./pages/Intro/intro.jsx";
+import Home from "./pages/home/home.jsx";
 import "./App.css";
-
-function HomePlaceholder() {
-  return <main>Home</main>;
-}
 
 function App() {
   return (
@@ -12,7 +9,7 @@ function App() {
       <div className="app-root">
         <Routes>
           <Route path="/" element={<Intro />} />
-          <Route path="/home" element={<HomePlaceholder />} />
+          <Route path="/home" element={<Home />} />
         </Routes>
       </div>
     </BrowserRouter>
