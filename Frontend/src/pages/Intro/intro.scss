@@ -1,0 +1,209 @@
+@use "../../styles/variables" as *;
+
+.intro {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  box-sizing: border-box;
+  background: linear-gradient(165deg, #f8f9fb 0%, #eef1f5 100%);
+
+  @media (prefers-color-scheme: dark) {
+    background: linear-gradient(165deg, #121318 0%, #1a1c24 100%);
+  }
+}
+
+.intro__inner {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.intro__header {
+  text-align: center;
+  margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.intro__title {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+  color: var(--text-h, #0f1117);
+}
+
+.intro__subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text, #5c6370);
+  max-width: 36ch;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.45;
+}
+
+.intro__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+
+  @media (min-width: 560px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 960px) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+// --- Kartice ---
+
+.intro-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  min-height: 200px;
+  padding: 1.35rem 1.25rem 1.15rem;
+  border-radius: 16px;
+  border: 1.5px solid var(--intro-border, rgba(0, 0, 0, 0.08));
+  background: var(--intro-surface, #fff);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    background 0.3s ease;
+  cursor: default;
+
+  @media (prefers-color-scheme: dark) {
+    --intro-border: rgba(255, 255, 255, 0.1);
+  }
+
+  &--medicine {
+    --intro-accent: #{$med-primary};
+    --intro-accent-dim: #{rgba($med-primary, 0.12)};
+    --intro-surface: #{$med-secondary};
+    --intro-body: #{$med-text};
+  }
+
+  &--psychology {
+    --intro-accent: #{$psy-primary};
+    --intro-accent-dim: #{rgba($psy-primary, 0.12)};
+    --intro-surface: #{$psy-secondary};
+    --intro-body: #{$psy-text};
+  }
+
+  &--economy {
+    --intro-accent: #{$eco-primary};
+    --intro-accent-dim: #{rgba($eco-primary, 0.12)};
+    --intro-surface: #{$eco-secondary};
+    --intro-body: #{$eco-text};
+  }
+
+  &--it {
+    --intro-accent: #{$it-primary};
+    --intro-accent-dim: #{rgba($it-primary, 0.12)};
+    --intro-surface: #{$it-secondary};
+    --intro-body: #{$it-text};
+  }
+}
+
+.intro-card__title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--intro-body);
+  letter-spacing: -0.02em;
+}
+
+.intro-card__short {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--text, #4b5563);
+  flex-grow: 0;
+}
+
+.intro-card__reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-top: 0;
+  pointer-events: none;
+  transition:
+    max-height 0.4s ease,
+    opacity 0.3s ease,
+    margin-top 0.3s ease;
+}
+
+.intro-card__description {
+  font-size: 0.86rem;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--text, #4b5563);
+}
+
+.intro-card__action {
+  align-self: flex-start;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 1.1rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #fff;
+  background: var(--intro-accent);
+  box-shadow: 0 2px 10px var(--intro-accent-dim);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+  margin-top: auto;
+
+  &:hover {
+    filter: brightness(1.05);
+    box-shadow: 0 4px 16px var(--intro-accent-dim);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--intro-accent);
+    outline-offset: 2px;
+  }
+}
+
+// Hover (i tastatura) otvara sadržaj; dugme postaje klikabilno
+.intro-card:hover,
+.intro-card:focus-within {
+  transform: translateY(-6px);
+  box-shadow:
+    0 16px 40px -12px rgba(15, 23, 42, 0.18),
+    0 6px 14px -6px rgba(15, 23, 42, 0.1);
+  border-color: var(--intro-accent);
+  background: color-mix(
+    in srgb,
+    var(--intro-surface) 88%,
+    var(--intro-accent) 12%
+  );
+
+  @media (prefers-color-scheme: dark) {
+    background: color-mix(
+      in srgb,
+      var(--intro-surface) 75%,
+      var(--intro-accent) 25%
+    );
+  }
+
+  .intro-card__reveal {
+    max-height: 320px;
+    opacity: 1;
+    margin-top: 1rem;
+    pointer-events: auto;
+  }
+}
