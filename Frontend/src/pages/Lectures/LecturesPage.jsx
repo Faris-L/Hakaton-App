@@ -130,7 +130,7 @@ export default function LecturesPage() {
       <div className="lectures__bg" aria-hidden="true" />
       <div className="lectures__routes">
         <Routes>
-          <Route path="/" element={<LecturesListView />} />
+          <Route index element={<LecturesListView />} />
           <Route path="new" element={<LectureEditor />} />
           <Route path=":id/edit" element={<LectureEditor />} />
         </Routes>

@@ -53,7 +53,7 @@ const FEATURES = [
     rot: "3.5deg",
     emoji: "🃏",
     title: "Flash cards",
-    description: "Brze kartice za ponavljanje.",
+    description: "Pitanje na jednoj strani, odgovor na drugoj — vežbaj gradivo tvog smera.",
     cta: "KRENI",
     to: "/flashcards",
     touch: "flashcards",

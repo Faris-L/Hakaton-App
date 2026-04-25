@@ -105,6 +105,52 @@
   font-size: 0.95rem;
   line-height: 1.55;
   margin: 0 0 1rem;
+
+  strong {
+    color: #334155;
+    font-weight: 700;
+  }
+}
+
+.fc-page__how {
+  text-align: left;
+  max-width: 38rem;
+  margin: 0 auto 1.2rem;
+  padding: 1rem 1.15rem 1.05rem;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+.fc-page__how-title {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #22c55e;
+  margin: 0 0 0.65rem;
+}
+
+.fc-page__how-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #334155;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.fc-page__how-list li {
+  margin-bottom: 0.5rem;
+}
+
+.fc-page__how-list li:last-child {
+  margin-bottom: 0;
+}
+
+.fc-page__how-list strong {
+  color: #0f172a;
+  font-weight: 700;
 }
 
 .fc-page__tool {
@@ -167,8 +213,14 @@
   color: #64748b;
   font-size: 0.95rem;
   margin: 2rem auto;
-  max-width: 38ch;
+  max-width: min(44rem, 100%);
+  padding: 0 0.5rem;
   line-height: 1.55;
+  box-sizing: border-box;
+}
+
+.fc-empty strong {
+  color: #334155;
 }
 
 .fc-page__grid {
@@ -204,6 +256,14 @@
   font-weight: 600;
   color: #22c55e;
   margin-top: 0.2rem;
+}
+
+.fc-set__tip {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #64748b;
+  margin: 0.4rem 0 0.25rem;
+  text-align: left;
 }
 
 .fc-set__row {
@@ -362,6 +422,22 @@
   margin: 0;
   line-height: 1.3;
 }
+
+.fc-practice__hint {
+  max-width: 32rem;
+  margin: 0.65rem auto 0;
+  padding: 0 0.5rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.fc-practice__hint strong {
+  color: #334155;
+  font-weight: 700;
+}
+
 .fc-practice__actions {
   display: flex;
   flex-wrap: wrap;
@@ -492,6 +568,49 @@
   color: #0f172a;
   margin: 0;
 }
+
+.fc-editor__blurb {
+  margin: 0 0 1.1rem;
+  padding: 0.9rem 1rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.9rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #334155;
+}
+
+.fc-editor__blurb-p {
+  margin: 0 0 0.6rem;
+}
+
+.fc-editor__blurb-p strong,
+.fc-editor__blurb-ul strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.fc-editor__blurb-ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.fc-editor__blurb-ul li {
+  margin-bottom: 0.4rem;
+}
+
+.fc-editor__blurb-ul li:last-child {
+  margin-bottom: 0;
+}
+
+.fc-editor__cards-lead {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #64748b;
+  margin: -0.2rem 0 0.75rem;
+  max-width: 40rem;
+}
+
 .fc-editor__h3 {
   font-size: 0.9rem;
   text-transform: uppercase;
@@ -606,7 +725,7 @@
 }
 .fc-modal {
   width: 100%;
-  max-width: 400px;
+  max-width: min(440px, 100%);
   background: #fff;
   border-radius: 16px;
   padding: 1.1rem 1.2rem 1.2rem;

@@ -154,6 +154,10 @@ export default function FlashcardPractice() {
           {n} / {total}
         </p>
         <h2 className="fc-practice__h">{setName}</h2>
+        <p className="fc-practice__hint">
+          Pročitaj <strong>prednju stranu</strong> kartice. Klikni na nju da je <strong>okreneš</strong> i
+          vidiš odgovor. Zatim označi da li si znao — ili preskoči na sledeću.
+        </p>
       </div>
       {current ? (
         <FlashcardFlipCard

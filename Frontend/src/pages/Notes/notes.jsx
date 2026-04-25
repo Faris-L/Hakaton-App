@@ -5,6 +5,7 @@ import {
   getDisplayName,
   recordFeatureTouch,
   syncProfileFieldFromCurrentAccount,
+  FIELD_NAMES,
 } from "../../lib/nexoraSession.js";
 import {
   createNote,
@@ -36,6 +37,8 @@ function NotesListView() {
   const [err, setErr] = useState(null);
   const navigate = useNavigate();
   const me = getDisplayName();
+  const field = getAccountField() || "it";
+  const fieldLabel = FIELD_NAMES[field] || "Informatika";
 
   useEffect(() => {
     syncProfileFieldFromCurrentAccount();
@@ -65,7 +68,6 @@ function NotesListView() {
         <Link to="/home" className="notes__back">
           ← Početna
         </Link>
-        <h1 className="notes__title">Beleške</h1>
         <div className="notes__toolbar">
           {me ? <span className="notes__user">{me}</span> : null}
           <button
@@ -78,16 +80,53 @@ function NotesListView() {
         </div>
       </nav>
 
+      <div className="notes__hero">
+        <h1 className="notes__page-h1">Beleške</h1>
+        <p className="notes__kicker">Smer · {fieldLabel}</p>
+        <h2 className="notes__headline">Tvoje ideje, skice i pitanja na jednom mestu</h2>
+        <p className="notes__lead">
+          Beleške su vezane za tvoj izabrani smer. Svaka ima naslov i slobodan tekst — za ispit, konspket
+          iz predavanja ili pitanja za proveru. Sačuvano je na nalog, možeš da se vraćaš i menjaš kad god.
+        </p>
+      </div>
+
       <main className="notes__main">
         {err ? <p className="notes__err">{err}</p> : null}
         {loading ? (
-          <p className="notes__loading">Učitavanje…</p>
+          <div className="notes__skeleton" aria-busy="true" aria-label="Učitavanje beleški">
+            <div className="notes__skeleton-card" />
+            <div className="notes__skeleton-card" />
+            <div className="notes__skeleton-card" />
+            <div className="notes__skeleton-card" />
+          </div>
         ) : notes.length === 0 ? (
-          <p className="notes__empty">
-            Još nema beleški. Klik na „+ Nova beleška” da kreneš.
-          </p>
+          <div className="notes__empty">
+            <div className="notes__empty-ic" aria-hidden="true">
+              📒
+            </div>
+            <h3 className="notes__empty-title">Započni prvu belešku</h3>
+            <p className="notes__empty-text">
+              Nemaš još nijedan zapis. Klikni gore <strong>+ Nova beleška</strong> i unesi naslov (npr.{" "}
+              <em>Rečnik pojmova</em> ili <em>Skripta — 3. čas</em>), pa sadržaj. Posle uvek možeš da
+              dopuniš.
+            </p>
+            <button
+              type="button"
+              className="notes__empty-cta"
+              onClick={() => navigate("new")}
+            >
+              Kreiraj belešku
+            </button>
+          </div>
         ) : (
-          <div className="notes__grid">
+          <>
+            <p className="notes__count" role="status">
+              <span className="notes__count-num">{notes.length}</span>
+              {notes.length === 1 ? " beleška" : " beleške"}
+              <span className="notes__count-dot" aria-hidden />
+              <span className="notes__count-field">{fieldLabel}</span>
+            </p>
+            <div className="notes__grid">
             {notes.map((n, i) => (
               <button
                 key={n.id}
@@ -112,7 +151,8 @@ function NotesListView() {
                 </div>
               </button>
             ))}
-          </div>
+            </div>
+          </>
         )}
       </main>
     </>
@@ -243,13 +283,14 @@ function NoteEditorView() {
   if (loadErr) {
     return (
       <>
-        <nav className="notes__nav">
+        <nav className="notes__nav" aria-label="Beleška">
           <Link to="/notes" className="notes__back">
             ← Nazad na listu
           </Link>
-          <h1 className="notes__title">Beleška</h1>
+          <span className="notes__nav-end-sp" aria-hidden="true" />
         </nav>
         <main className="notes__main">
+          <h1 className="notes__page-h1">Beleška</h1>
           <p className="notes__err">{loadErr}</p>
           <Link to="/notes" className="notes__back">
             ← Lista beleški
@@ -261,9 +302,18 @@ function NoteEditorView() {
 
   if (loading) {
     return (
-      <main className="notes__main">
-        <p className="notes__loading">Učitavanje…</p>
-      </main>
+      <>
+        <nav className="notes__nav" aria-label="Uređivač">
+          <Link to="/notes" className="notes__back">
+            ← Nazad na listu
+          </Link>
+          <span className="notes__nav-end-sp" aria-hidden="true" />
+        </nav>
+        <main className="notes__main notes__main--editor">
+          <h1 className="notes__page-h1">Uredi belešku</h1>
+          <p className="notes__loading">Učitavanje…</p>
+        </main>
+      </>
     );
   }
 
@@ -273,14 +323,22 @@ function NoteEditorView() {
         <Link to="/notes" className="notes__back">
           ← Nazad na listu
         </Link>
-        <h1 className="notes__title">
+        <span className="notes__nav-end-sp" aria-hidden="true" />
+      </nav>
+      <main className="notes__main notes__main--editor">
+        <h1 className="notes__page-h1">
           {isNew ? "Nova beleška" : "Uredi belešku"}
         </h1>
-        <span style={{ minWidth: "5rem" }} />
-      </nav>
-      <main className="notes__main">
         {err ? <p className="notes__err">{err}</p> : null}
         <div className="notes-editor">
+          <div className="notes-editor__top">
+            <p className="notes-editor__badge">{FIELD_NAMES[getAccountField() || "it"] || "Smer"}</p>
+            <h2 className="notes-editor__h2">Sadržaj beleške</h2>
+            <p className="notes-editor__intro">
+              Naslov nije obavezan u smislu forme, ali ti pomaže u listi. Sadržaj može biti dugačak ili
+              kratak. Dugme ispod pita AI da sredi ili proširi tekst na osnovu onoga što već piše u polju.
+            </p>
+          </div>
           <div className="notes-editor__row">
             <span className="notes-editor__label" id="note-title-label">
               Naslov
@@ -291,10 +349,10 @@ function NoteEditorView() {
               aria-labelledby="note-title-label"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Naslov beleške"
+              placeholder="Kratko — kako da prepoznaš listu (npr. Fiziologija — srce)"
             />
           </div>
-          <p className="notes-editor__hint">Predmet: onaj izabran na uvodu (nije moguća promena ovde).</p>
+          <p className="notes-editor__hint">Predmet je uvek smer s uvoda — nije moguća promena ovde.</p>
           <div className="notes-editor__row">
             <span className="notes-editor__label" id="note-content-label">
               Sadržaj
@@ -305,7 +363,7 @@ function NoteEditorView() {
               aria-labelledby="note-content-label"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Tvoj tekst, skica ili pitanje…"
+              placeholder="Napiši šta učiš, iskopiraj odlomak iz knjige, napiši pitanja za ispit, šemu…"
             />
           </div>
           <div className="notes-editor__actions">
@@ -341,13 +399,8 @@ function NoteEditorView() {
 }
 
 export default function Notes() {
-  const [field, setField] = useState(
-    () => localStorage.getItem("selectedField") || "it"
-  );
-
   useEffect(() => {
     syncProfileFieldFromCurrentAccount();
-    setField(localStorage.getItem("selectedField") || "it");
   }, []);
 
   useEffect(() => {
@@ -355,8 +408,7 @@ export default function Notes() {
   }, []);
 
   return (
-    <div className={`notes notes--${field}`}>
-      <div className="notes__bg" aria-hidden="true" />
+    <div className="notes">
       <Routes>
         <Route index element={<NotesListView />} />
         <Route path=":id" element={<NoteEditorView />} />
