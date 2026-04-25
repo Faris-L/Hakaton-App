@@ -10,6 +10,21 @@ import {
 } from "../../lib/nexoraSession.js";
 import "./aiQuiz.scss";
 
+const DIFFICULTY = {
+  laka: {
+    label: "Laka",
+    hint: "osnovni pojmovi, kratke definicije, direktno iz gradiva",
+  },
+  srednja: {
+    label: "Srednja",
+    hint: "povezivanje ideja, tipični ispitni zadaci, malo dublja objašnjenja",
+  },
+  teska: {
+    label: "Teška",
+    hint: "analitička pitanja, gran slučajevi, zahtevnija razrade — bez trivijalnih definicija",
+  },
+};
+
 const JSON_SYSTEM = `Ti si tutor za "ko zna zna" stil. Odgovori ISKLJUČIVO validnim JSON-om na srpskom (latinica), bez komentara pre ili posle.
 
 Format (tačno 5 stavki u nizu stavke):
@@ -18,7 +33,9 @@ Format (tačno 5 stavki u nizu stavke):
   ... još 4 stavke
 ]}
 
-Pitanja: konkretna, zanimljiva, prilagođena smeru i temi. Odgovori: tačni, jasni. Nema Markdovna, nema \`\`\` zaokruživača.`;
+Korisnik će u poruci zadati TEŽINU (Laka / Srednja / Teška). Sva 5 pitanja i 5 rešenja MORAJU striktno da odgovaraju toj težini — ne teži od srednje ako je zadata laka, i obrnuto.
+
+Pitanja: konkretna, prilagođena smeru i temi. Odgovori: tačni, jasni. Nema Markdovna, nema \`\`\` zaokruživača.`;
 
 function parseKvizStavke(raw) {
   if (!raw || typeof raw !== "string") return null;
@@ -52,6 +69,7 @@ function parseKvizStavke(raw) {
 export default function AiQuizPage() {
   const [field, setField] = useState("it");
   const [topic, setTopic] = useState("");
+  const [difficulty, setDifficulty] = useState("srednja");
   const [outRaw, setOutRaw] = useState("");
   const [items, setItems] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -81,9 +99,14 @@ export default function AiQuizPage() {
     setLoading(true);
     try {
       const label = FIELD_NAMES[field] || "Informatika";
+      const d = DIFFICULTY[difficulty] || DIFFICULTY.srednja;
       const { reply } = await postAiAsk({
         system: JSON_SYSTEM,
-        message: `Smer: ${label}. Tema: ${t}. Napravi 5 pitanja u stilu "ko zna zna" i za svako daj tačno rešenje. JSON po uputstvu iz system poruke.`,
+        message: `Smer: ${label}. Tema: ${t}.
+
+TEŽINA (obavezno pridržavaj se u svih 5 pitanja): ${d.label} — ${d.hint}
+
+Napravi 5 pitanja u stilu "ko zna zna" i za svako daj tačno rešenje. JSON po uputstvu iz system poruke.`,
       });
       const text = reply || "";
       setOutRaw(text);
@@ -95,7 +118,7 @@ export default function AiQuizPage() {
     } finally {
       setLoading(false);
     }
-  }, [field, topic]);
+  }, [field, topic, difficulty]);
 
   return (
     <div className="aq">
@@ -110,8 +133,8 @@ export default function AiQuizPage() {
           <span className="aq__kicker">Ko zna zna</span>
           <h1 className="aq__title">AI kviz</h1>
           <p className="aq__lead">
-            Unesi temu — dobijaš 5 pitanja i <strong>rešenja</strong> prilagođena tvom smeru, kao u kvizu „ko
-            zna zna“.
+            Unesi temu, izaberi <strong>težinu</strong> — dobijaš 5 pitanja i rešenja u stilu „ko zna zna“,
+            prilagođenih smeru i zadatoj težini.
           </p>
         </header>
         <main className="aq__main">
@@ -134,6 +157,24 @@ export default function AiQuizPage() {
               disabled={loading}
               aria-labelledby="aq-topic"
             />
+            <span className="aq__label" id="aq-diff">
+              Težina pitanja
+            </span>
+            <select
+              id="aq-diff"
+              className="aq__select"
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value)}
+              disabled={loading}
+              aria-describedby="aq-diff-hint"
+            >
+              <option value="laka">{DIFFICULTY.laka.label}</option>
+              <option value="srednja">{DIFFICULTY.srednja.label}</option>
+              <option value="teska">{DIFFICULTY.teska.label}</option>
+            </select>
+            <p id="aq-diff-hint" className="aq__diff-hint">
+              {(DIFFICULTY[difficulty] || DIFFICULTY.srednja).hint}
+            </p>
             <button type="submit" className="aq__btn" disabled={loading || !topic.trim()}>
               {loading ? "Generišem…" : "Generiši 5 pitanja + rešenja"}
             </button>

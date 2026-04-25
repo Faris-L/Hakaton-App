@@ -52,7 +52,7 @@ const TOOLS = [
   },
   {
     key: "field_chat",
-    label: "Chat za smer",
+    label: "Chat Mudrosti",
     desc: "Pitaj o oblasti koju trenutno učiš.",
     to: "/field-chat",
     mod: "c",
@@ -66,7 +66,7 @@ const TOOLS = [
   },
   {
     key: "sources_ai",
-    label: "Izvori + AI",
+    label: "Obrada fajlova",
     desc: "Odgovori samo na osnovu tvog teksta ili fajla.",
     to: "/izvori-ai",
     mod: "i",

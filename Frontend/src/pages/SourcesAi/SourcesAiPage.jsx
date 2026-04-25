@@ -82,7 +82,7 @@ export default function SourcesAiPage() {
     const a = answer.trim();
     if (!a) return;
     const stamp = new Date().toISOString().slice(0, 19).replace("T", "-").replace(/:/g, "-");
-    const head = `Nexora — Izvori + AI
+    const head = `Nexora — Obrada fajlova
 Datum: ${new Date().toLocaleString("sr-Latn-RS", { timeZone: "Europe/Belgrade" })}
 
 === Pitanje ===
@@ -118,7 +118,7 @@ ${question.trim()}
   return (
     <div className="sa">
       <div className="sa__shell">
-        <header className="sa__header" aria-label="Izvori + AI">
+        <header className="sa__header" aria-label="Obrada fajlova">
           <nav className="sa__nav" aria-label="Kretanje">
             <Link to="/home" className="sa__back">
               ← Početna
@@ -126,11 +126,7 @@ ${question.trim()}
             <div style={{ width: "3.5rem" }} aria-hidden />
           </nav>
           <h1 className="sa__title">
-            <span className="sa__title-txt">Izvori</span>
-            <span className="sa__title-plus" aria-hidden>
-              +
-            </span>
-            <span className="sa__title-txt sa__title-txt--ai">AI</span>
+            <span className="sa__title-txt">Obrada fajlova</span>
           </h1>
           <p className="sa__sub">
             Nalepi, učitaj fajl ili otkucaj sadržaj — model odgovara <strong>samo</strong> u okviru tog teksta.

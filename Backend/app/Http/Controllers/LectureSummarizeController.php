@@ -21,8 +21,14 @@ class LectureSummarizeController extends Controller
             ."\nTip: ".$lecture->type
             ."\n\nOpis:\n".(string) $lecture->description;
 
+        if ($lecture->type === 'video' && $lecture->video_url) {
+            $line .= "\n\nURL videa (YouTube ili direktan fajl npr. mp4):\n".$lecture->video_url;
+        }
+
         $system = 'Sažmi ovo učenja predavanje u 3–5 kratkih rečenica na srpskom (latinica). '.
-            'Pisi neutralno, kao uvod. Ne praviti pitanja, kartice, skripte niti povezivati s drugim alatima.';
+            'Pisi neutralno, kao uvod. Ne praviti pitanja, kartice, skripte niti povezivati s drugim alatima. '.
+            'Ako je tip "video", u jednoj kratkoj rečenici navedi da je sažetak na osnovu metapodataka predavanja (naslov, opis, link), '.
+            'a ne transkripta samog snimka, osim ako opis već sadrži dovoljno sadržaja da bude jasno šta video pokriva.';
 
         try {
             $response = OpenAI::chat()->create([

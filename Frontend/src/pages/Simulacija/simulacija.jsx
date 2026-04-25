@@ -473,47 +473,47 @@ export default function Simulacija() {
             <FieldBadgeIcon field={field} />
             <span>{fieldName}</span>
           </div>
-          <button
-            type="button"
-            className="sim-cta"
-            onClick={onKreni}
-            disabled={loading}
-          >
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
-              <path d="M8 5v14l11-7z" />
-            </svg>
-            {started ? "Počni iznova" : "Kreni simulaciju"}
-          </button>
-        </div>
-        <div
-            className={
-              "sim-head__tts" +
-              (ttsAutoplay ? " sim-head__tts--on" : " sim-head__tts--off")
-            }
-          >
-            <label
+          <div className="sim-head__right">
+            <div
               className={
-                "sim-tts" + (ttsAutoplay ? " sim-tts--on" : " sim-tts--off")
+                "sim-head__tts sim-head__tts--inline" +
+                (ttsAutoplay ? " sim-head__tts--on" : " sim-head__tts--off")
               }
+              title="Glas klijenta (ElevenLabs). Snimanje glasa gasi TTS."
             >
-              <input
-                className="sim-tts__native"
-                type="checkbox"
-                checked={ttsAutoplay}
-                onChange={onToggleTtsAutoplay}
-              />
-              <span className="sim-tts__ui" aria-hidden>
-                <span className="sim-tts__track">
-                  <span className="sim-tts__knob" />
-                  <span className="sim-tts__glow" />
+              <label
+                className={
+                  "sim-tts sim-tts--compact" + (ttsAutoplay ? " sim-tts--on" : " sim-tts--off")
+                }
+              >
+                <input
+                  className="sim-tts__native"
+                  type="checkbox"
+                  checked={ttsAutoplay}
+                  onChange={onToggleTtsAutoplay}
+                />
+                <span className="sim-tts__ui" aria-hidden>
+                  <span className="sim-tts__track">
+                    <span className="sim-tts__knob" />
+                    <span className="sim-tts__glow" />
+                  </span>
                 </span>
-              </span>
-              <span className="sim-tts__text">Auto glas klijenta</span>
-            </label>
-            <p className="sim-head__tts-hint" title="Glas: ElevenLabs (backend)">
-              Glas: ElevenLabs. Snimanje odgovora gasi TTS.
-            </p>
+                <span className="sim-tts__text">AI glas</span>
+              </label>
+            </div>
+            <button
+              type="button"
+              className="sim-cta"
+              onClick={onKreni}
+              disabled={loading}
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              {started ? "Počni iznova" : "Kreni simulaciju"}
+            </button>
           </div>
+        </div>
         <h1 className="sim-title">Jedan životni razgovor</h1>
         <p className="sim-sub">
           Uloga klijenta (AI) je da vodi <strong>logičan, realan</strong> dijalog; kada mu odgovor

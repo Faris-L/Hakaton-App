@@ -72,12 +72,12 @@ export default function FieldChatPage() {
   return (
     <div className="fc">
       <div className="fc__shell">
-        <header className="fc__header" aria-label="Chat za smer">
+        <header className="fc__header" aria-label="Chat Mudrosti">
           <nav className="fc__nav" aria-label="Kretanje">
             <Link to="/home" className="fc__back">
               ← Početna
             </Link>
-            <h1 className="fc__title">Chat</h1>
+            <h1 className="fc__title">Chat Mudrosti</h1>
             <button
               type="button"
               className="fc__reset"
