@@ -2,6 +2,12 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { postJson } from "../../api/client.js";
 import { recordAiScore, syncProfileFieldFromCurrentAccount } from "../../lib/nexoraSession.js";
+import {
+  isSpeechSynthesisAvailable,
+  speakClientMessage,
+  stopSimulationTts,
+  onTtsVoicesReady,
+} from "../../lib/simulationTts.js";
 import "./simulacija.scss";
 
 const FIELD_NAMES = {
@@ -98,11 +104,39 @@ export default function Simulacija() {
   const [error, setError] = useState("");
   const [secondsLeft, setSecondsLeft] = useState(DEFAULT_MIN * 60);
   const [voiceListening, setVoiceListening] = useState(false);
+  const [speakingId, setSpeakingId] = useState(null);
+  const [ttsAutoplay, setTtsAutoplay] = useState(
+    () => localStorage.getItem("simTtsAutoplay") !== "0"
+  );
   const fileRef = useRef(null);
   const speechRef = useRef(null);
+  const ttsOk = isSpeechSynthesisAvailable();
 
   const fieldName = FIELD_NAMES[field] || "Informatika";
   const hasUserMessage = messages.some((m) => m.role === "user");
+
+  const playClientLineTts = useCallback((text, msgId) => {
+    if (!ttsOk || !String(text).trim()) {
+      return Promise.resolve();
+    }
+    return new Promise((resolve) => {
+      stopSimulationTts();
+      setSpeakingId(msgId);
+      speakClientMessage(text, {
+        onEnd: () => {
+          setSpeakingId((s) => (s === msgId ? null : s));
+          resolve();
+        },
+      });
+    });
+  }, [ttsOk]);
+
+  const stopClientTts = useCallback(() => {
+    stopSimulationTts();
+    setSpeakingId(null);
+  }, []);
+
+  useEffect(() => onTtsVoicesReady(() => {}), []);
 
   useEffect(() => {
     syncProfileFieldFromCurrentAccount();
@@ -125,6 +159,13 @@ export default function Simulacija() {
     }, 1000);
     return () => clearInterval(id);
   }, [started, feedback]);
+
+  useEffect(() => {
+    if (feedback) {
+      stopSimulationTts();
+      setSpeakingId(null);
+    }
+  }, [feedback]);
 
   const stopVoice = useCallback(() => {
     const r = speechRef.current;
@@ -149,6 +190,8 @@ export default function Simulacija() {
       stopVoice();
       return;
     }
+
+    stopClientTts();
 
     const Ctor = getSpeechRecognitionCtor();
     if (!Ctor) {
@@ -206,7 +249,7 @@ export default function Simulacija() {
     } catch (e) {
       setError(e?.message || "Nije moguće pokrenuti glas. Pokušaj ponovo.");
     }
-  }, [feedback, started, voiceListening, stopVoice]);
+  }, [feedback, started, voiceListening, stopVoice, stopClientTts]);
 
   useEffect(() => {
     return () => {
@@ -223,6 +266,7 @@ export default function Simulacija() {
 
   const startConversation = useCallback(async () => {
     stopVoice();
+    stopClientTts();
     setError("");
     setLoading(true);
     try {
@@ -239,12 +283,15 @@ export default function Simulacija() {
       setStarted(true);
       setFeedback(null);
       setInput("");
+      if (ttsAutoplay) {
+        void playClientLineTts(n.text, n.id);
+      }
     } catch (e) {
       setError(e.message || "Greška pri učitavanju.");
     } finally {
       setLoading(false);
     }
-  }, [field, stopVoice]);
+  }, [field, stopVoice, stopClientTts, ttsAutoplay, playClientLineTts]);
 
   const onKreni = () => {
     if (loading) return;
@@ -257,6 +304,7 @@ export default function Simulacija() {
     const t = input.trim();
     if (!t || !started || feedback || loading) return;
     stopVoice();
+    stopClientTts();
     setError("");
 
     const timeStr = new Date().toLocaleTimeString("sr-RS", {
@@ -285,6 +333,9 @@ export default function Simulacija() {
       };
       const withAi = [...next, aimsg];
       setMessages(withAi);
+      if (ttsAutoplay) {
+        await playClientLineTts(aimsg.text, aimsg.id);
+      }
 
       if (data.end_conversation) {
         const ev = await postJson("/simulation/evaluate", {
@@ -308,6 +359,23 @@ export default function Simulacija() {
     }
   };
 
+  const onToggleTtsAutoplay = (e) => {
+    const on = e.target.checked;
+    setTtsAutoplay(on);
+    localStorage.setItem("simTtsAutoplay", on ? "1" : "0");
+    if (!on) {
+      stopClientTts();
+    }
+  };
+
+  const onTtsButton = (msg) => {
+    if (speakingId === msg.id) {
+      stopClientTts();
+      return;
+    }
+    void playClientLineTts(msg.text, msg.id);
+  };
+
   const onZavrsiSimulaciju = async () => {
     if (feedback || loading || !started) return;
     if (!hasUserMessage) {
@@ -315,6 +383,7 @@ export default function Simulacija() {
       return;
     }
     stopVoice();
+    stopClientTts();
     setError("");
     setLoading(true);
     try {
@@ -339,6 +408,7 @@ export default function Simulacija() {
   };
 
   const onNovaSimulacija = () => {
+    stopClientTts();
     setFeedback(null);
     setMessages([]);
     setInput("");
@@ -408,6 +478,23 @@ export default function Simulacija() {
             {started ? "Počni iznova" : "Kreni simulaciju"}
           </button>
         </div>
+        {ttsOk ? (
+          <div className="sim-head__tts">
+            <label className="sim-tts">
+              <input
+                type="checkbox"
+                checked={ttsAutoplay}
+                onChange={onToggleTtsAutoplay}
+              />
+              <span>Automatski pusti glas klijenta (čitanje pitanja)</span>
+            </label>
+            <p className="sim-head__tts-hint">
+              Na svakoj klijentovoj poruci: <strong>Pusti glas</strong> pročitava rečenice naglas. Tvoj
+              odgovor i dalje možeš <strong>snimiti glasom</strong> (mikrofon) — tada se glas
+              klijenta gasi.
+            </p>
+          </div>
+        ) : null}
         <h1 className="sim-title">Jedan životni razgovor</h1>
         <p className="sim-sub">
           Uloga klijenta (AI) je da vodi <strong>logičan, realan</strong> dijalog; kada mu odgovor
@@ -487,6 +574,40 @@ export default function Simulacija() {
                 </div>
                 <div className="sim-msg__bubble">
                   {msg.text}
+                  {msg.role === "ai" && ttsOk ? (
+                    <div className="sim-msg__voice">
+                      <button
+                        type="button"
+                        className={
+                          "sim-msg__tts" + (speakingId === msg.id ? " sim-msg__tts--active" : "")
+                        }
+                        onClick={() => onTtsButton(msg)}
+                        disabled={!msg.text?.trim() || Boolean(feedback)}
+                        aria-pressed={speakingId === msg.id}
+                        aria-label={
+                          speakingId === msg.id
+                            ? "Zaustavi čitanje klijentove poruke"
+                            : "Pusti glas: pročitaj poruku klijenta"
+                        }
+                      >
+                        <svg
+                          className="sim-msg__tts-ic"
+                          viewBox="0 0 24 24"
+                          width="16"
+                          height="16"
+                          fill="currentColor"
+                          aria-hidden
+                        >
+                          {speakingId === msg.id ? (
+                            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" fill="currentColor" />
+                          ) : (
+                            <path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3a3.5 3.5 0 0 0-1-2.45v4.9a3.5 3.5 0 0 0 1-2.45zM16 3.23v2.06a6 6 0 0 1 0 11.38v2.06a8 8 0 0 0 0-15.5z" />
+                          )}
+                        </svg>
+                        {speakingId === msg.id ? "Zaustavi" : "Pusti glas"}
+                      </button>
+                    </div>
+                  ) : null}
                   {msg.time ? (
                     <div className="sim-msg__foot">
                       <time>{msg.time}</time>
