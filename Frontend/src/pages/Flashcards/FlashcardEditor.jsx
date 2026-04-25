@@ -12,13 +12,6 @@ import {
 } from "../../api/flashcardsApi.js";
 import { getAccountField } from "../../lib/nexoraSession.js";
 
-const SUBJECTS = [
-  { id: "medicine", label: "Medicina" },
-  { id: "psychology", label: "Psihologija" },
-  { id: "economy", label: "Ekonomija" },
-  { id: "it", label: "Informatika" },
-];
-
 const DIFFS = [
   { id: "easy", label: "Lako" },
   { id: "medium", label: "Srednje" },
@@ -46,7 +39,6 @@ export default function FlashcardEditor() {
   const isNew = !setId;
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
-  const [subject, setSubject] = useState(() => getAccountField() || "it");
   const [description, setDescription] = useState("");
   const [cards, setCards] = useState([emptyCard()]);
   const [deletedIds, setDeletedIds] = useState(/** @type {Set<number>} */ (new Set()));
@@ -73,7 +65,6 @@ export default function FlashcardEditor() {
         return;
       }
       setTitle(s.title || "");
-      setSubject(s.subject || "it");
       setDescription(s.description || "");
       const list = Array.isArray(s.cards) && s.cards.length > 0
         ? s.cards.map((c) => ({
@@ -122,7 +113,7 @@ export default function FlashcardEditor() {
       if (isNew) {
         await createFlashcardSet({
           title: title.trim() || "Bez naslova",
-          subject,
+          subject: getAccountField() || "it",
           description: description || "",
           cards: clean.map((c) => ({
             question: c.question.trim(),
@@ -136,7 +127,7 @@ export default function FlashcardEditor() {
       const sid = Number(setId);
       await updateFlashcardSet(sid, {
         title: title.trim() || "Bez naslova",
-        subject,
+        subject: getAccountField() || "it",
         description: description || "",
       });
       for (const id of deletedIds) {
@@ -258,20 +249,7 @@ export default function FlashcardEditor() {
             placeholder="npr. SQL osnove"
           />
         </label>
-        <label className="fc-field">
-          <span className="fc-field__l">Predmet</span>
-          <select
-            className="fc-input fc-input--select"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-          >
-            {SUBJECTS.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <p className="fc-field-hint">Predmet je uvek smer s uvoda — nije odvojen izbor ovde.</p>
         <label className="fc-field">
           <span className="fc-field__l">Opis (opciono)</span>
           <textarea

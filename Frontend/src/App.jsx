@@ -42,7 +42,7 @@ function App() {
             }
           />
           <Route
-            path="/predavanja"
+            path="/predavanja/*"
             element={
               <RequireAuth>
                 <LecturesPage />
@@ -50,7 +50,7 @@ function App() {
             }
           />
           <Route
-            path="/lectures"
+            path="/lectures/*"
             element={
               <RequireAuth>
                 <LecturesPage />

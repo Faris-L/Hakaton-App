@@ -282,6 +282,13 @@
   gap: 0.9rem;
 }
 
+.notes-editor__hint {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0 0 0.25rem;
+  line-height: 1.45;
+}
+
 .notes-editor__row {
   display: flex;
   flex-direction: column;

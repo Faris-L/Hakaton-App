@@ -1,9 +1,9 @@
 import { getLecturePlayUrl } from "../../api/lecturesApi.js";
 
 /**
- * @param {{ lecture: object, rot: string, onPusti: (l: object) => void }} props
+ * @param {{ lecture: object, rot: string, onPusti: (l: object) => void, onEdit: () => void }} props
  */
-export default function LectureCard({ lecture, rot, onPusti }) {
+export default function LectureCard({ lecture, rot, onPusti, onEdit }) {
   const isVideo = lecture.type === "video";
   const playUrl = getLecturePlayUrl(lecture);
   const disabled = !playUrl;
@@ -12,6 +12,16 @@ export default function LectureCard({ lecture, rot, onPusti }) {
     <article
       className="lecture-card home-card home-card--lectures"
       style={{ "--rot": rot }}
+      onClick={() => (disabled ? onEdit() : onPusti(lecture))}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (disabled) onEdit();
+          else onPusti(lecture);
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
       <div className="lecture-card__visual home-card__visual" aria-hidden="true">
         {isVideo ? (
@@ -52,14 +62,25 @@ export default function LectureCard({ lecture, rot, onPusti }) {
         <h2 className="home-card__title">{lecture.title}</h2>
         <p className="home-card__desc">{lecture.description || "—"}</p>
         <p className="lecture-card__duration">Trajanje: {lecture.duration}</p>
-        <button
-          type="button"
-          className="home-card__btn"
-          disabled={disabled}
-          onClick={() => onPusti(lecture)}
+        <div
+          className="lecture-card__row"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
         >
-          Pusti →
-        </button>
+          <button
+            type="button"
+            className="home-card__btn"
+            disabled={disabled}
+            onClick={() => onPusti(lecture)}
+          >
+            Pusti →
+          </button>
+          {onEdit ? (
+            <button type="button" className="lecture-card__edit" onClick={onEdit}>
+              Uredi
+            </button>
+          ) : null}
+        </div>
       </div>
     </article>
   );

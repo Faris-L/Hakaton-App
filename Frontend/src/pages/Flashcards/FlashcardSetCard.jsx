@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 /**
  * @param {{ set: { id: number, title: string, description?: string, subject: string, cards_count: number, created_at?: string }, rot: string }} props
  */
-export default function FlashcardSetCard({ set, rot, subjectLabel }) {
+export default function FlashcardSetCard({ set, rot }) {
   const navigate = useNavigate();
 
   const onCardClick = (e) => {
@@ -29,9 +29,7 @@ export default function FlashcardSetCard({ set, rot, subjectLabel }) {
         <h2 className="home-card__title">{set.title}</h2>
         <p className="home-card__desc">
           {set.description || "Bez opisa"}{" "}
-          <span className="fc-set__meta">
-            · {subjectLabel} · {set.cards_count ?? 0} kartica
-          </span>
+          <span className="fc-set__meta">· {set.cards_count ?? 0} kartica</span>
         </p>
         <div className="fc-set__row" onClick={(e) => e.stopPropagation()}>
           <button
