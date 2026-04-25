@@ -7,7 +7,7 @@ $parsed = is_string($origins) && $origins !== ''
 
 return [
 
-    'paths' => ['api/*', 'ai', 'simulation/*'],
+    'paths' => ['api/*', 'ai', 'notes', 'notes/*', 'lectures', 'lectures/*', 'flashcard-sets', 'flashcard-sets/*', 'flashcards', 'flashcards/*', 'simulation/*'],
 
     'allowed_methods' => ['*'],
 
