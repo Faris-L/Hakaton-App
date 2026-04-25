@@ -4,6 +4,10 @@ import Home from "./pages/home/home.jsx";
 import Login from "./pages/Login/login.jsx";
 import Simulacija from "./pages/Simulacija/simulacija.jsx";
 import Notes from "./pages/Notes/notes.jsx";
+import StudyPlannerPage from "./pages/StudyPlanner/StudyPlannerPage.jsx";
+import FieldChatPage from "./pages/FieldChat/FieldChatPage.jsx";
+import AiQuizPage from "./pages/AiQuiz/AiQuizPage.jsx";
+import SourcesAiPage from "./pages/SourcesAi/SourcesAiPage.jsx";
 import LecturesPage from "./pages/Lectures/LecturesPage.jsx";
 import FlashcardsPage from "./pages/Flashcards/FlashcardsPage.jsx";
 import Profil from "./pages/Profil/profil.jsx";
@@ -70,6 +74,38 @@ function App() {
             element={
               <RequireAuth>
                 <Profil />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/study-planner"
+            element={
+              <RequireAuth>
+                <StudyPlannerPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/field-chat"
+            element={
+              <RequireAuth>
+                <FieldChatPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/ai-quiz"
+            element={
+              <RequireAuth>
+                <AiQuizPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/izvori-ai"
+            element={
+              <RequireAuth>
+                <SourcesAiPage />
               </RequireAuth>
             }
           />

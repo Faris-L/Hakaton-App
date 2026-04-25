@@ -101,3 +101,10 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Početna (.home): ne reži vodoravno hover na karticama u #root lancu */
+#root:has(.home) {
+  overflow-x: visible;
+  overflow-y: auto;
+  max-height: 100%;
+}

@@ -27,9 +27,6 @@ const ALL_THEMES = Object.values(THEME_BODY);
 
 const DEFAULT_MIN = 20;
 
-const TTS_SOURCE_HINT =
-  "ElevenLabs TTS (eleven_multilingual_v2) — kroz backend /api/tts; ELEVENLABS_VOICE_ID u .env";
-
 function getField() {
   const s = localStorage.getItem("selectedField");
   if (s === "medicine" || s === "psychology" || s === "economy" || s === "it")
@@ -504,27 +501,10 @@ export default function Simulacija() {
                   <span className="sim-tts__glow" />
                 </span>
               </span>
-              <span className="sim-tts__text">
-                Automatski pusti glas klijenta
-              </span>
+              <span className="sim-tts__text">Auto glas klijenta</span>
             </label>
-            <p className="sim-head__tts-voice" title="ElevenLabs preko backenda">
-                <svg
-                  className="sim-head__tts-voice-ic"
-                  viewBox="0 0 24 24"
-                  width="14"
-                  height="14"
-                  fill="currentColor"
-                  aria-hidden
-                >
-                  <path d="M3 9v6h4l5 4V5L7 9H3zm14.5 1.5A4.5 4.5 0 0 0 16 5v2a2.5 2.5 0 0 1 0 4v2a4.5 4.5 0 0 0-1-7z" />
-                </svg>{" "}
-                {TTS_SOURCE_HINT}
-              </p>
-            <p className="sim-head__tts-hint">
-              Klijentova poruka ide na <code>POST /api/tts</code> (multilingvni model). Ako TTS ne
-              radi, proveri ključ u <code>.env</code> i konzolu — simulacija i dalje radi. Tvoj
-              odgovor možeš <strong>snimiti glasom</strong> (mikrofon) — tada se audio gasi.
+            <p className="sim-head__tts-hint" title="Glas: ElevenLabs (backend)">
+              Glas: ElevenLabs. Snimanje odgovora gasi TTS.
             </p>
           </div>
         <h1 className="sim-title">Jedan životni razgovor</h1>

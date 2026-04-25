@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   getDisplayName,
@@ -10,45 +10,97 @@ import {
 } from "../../lib/nexoraSession.js";
 import "./home.scss";
 
-const STAT_ID = {
-  scenario: "simulation",
-  notes: "notes",
-  lectures: "lectures",
-  flashcards: "flashcards",
-};
+/** @typedef {{ id: string, theme: string, rot: string, emoji: string, title: string, description: string, cta: string, to: string, touch: string | null, badge?: string }} HomeFeature */
 
-const features = [
+/** @type {HomeFeature[]} */
+const FEATURES = [
   {
     id: "scenario",
+    theme: "scenario",
     rot: "-3deg",
     emoji: "🎭",
     title: "Jedan životni razgovor",
-    description: "Kratak dijalog s AI klijentom, pa ocena pristupa — bez niza scenarija.",
+    description: "Kratak dijalog s AI klijentom, zatim ocena pristupa.",
     cta: "ZAPOČNI",
+    to: "/simulacija",
+    touch: "simulation",
   },
   {
     id: "notes",
+    theme: "notes",
     rot: "4deg",
     emoji: "📝",
     title: "Beleške",
-    description: "Pravi, uredi i organizuj beleške po temama i predmetima.",
+    description: "Kreiraj i uredi beleške po smeru.",
     cta: "OTVORI",
+    to: "/notes",
+    touch: "notes",
   },
   {
     id: "lectures",
+    theme: "lectures",
     rot: "-2deg",
     emoji: "🎧",
-    title: "Slušaj predavanja",
-    description: "Pristupaj audio i video predavanjima po predmetima.",
+    title: "Predavanja",
+    description: "Audio / video sadržaj po oblasti.",
     cta: "ISTRAŽI",
+    to: "/predavanja",
+    touch: "lectures",
   },
   {
     id: "flashcards",
+    theme: "flashcards",
     rot: "3.5deg",
     emoji: "🃏",
     title: "Flash cards",
-    description: "Uči pojmove kroz brze kartice — idealno za ponavljanje.",
+    description: "Brze kartice za ponavljanje.",
     cta: "KRENI",
+    to: "/flashcards",
+    touch: "flashcards",
+  },
+  {
+    id: "planner",
+    theme: "planner",
+    rot: "-2.2deg",
+    emoji: "📅",
+    title: "Planer učenja",
+    description: "Raspored, ciljevi, podsjećaji za tvoj smer.",
+    cta: "PREGLED",
+    to: "/study-planner",
+    touch: "study_planner",
+  },
+  {
+    id: "fieldchat",
+    theme: "fieldchat",
+    rot: "2deg",
+    emoji: "💬",
+    title: "Chat za smer",
+    description: "Opšta pitanja o oblasti koju trenutno biraš.",
+    cta: "PREGLED",
+    to: "/field-chat",
+    touch: "field_chat",
+  },
+  {
+    id: "aiquiz",
+    theme: "aiquiz",
+    rot: "-1.5deg",
+    emoji: "❓",
+    title: "AI kviz",
+    description: "Kviz prema temi koju zadaš.",
+    cta: "PREGLED",
+    to: "/ai-quiz",
+    touch: "ai_quiz",
+  },
+  {
+    id: "sources",
+    theme: "sources",
+    rot: "2.8deg",
+    emoji: "📎",
+    title: "Izvori + AI",
+    description: "Tvoji fajlovi; odgovori samo iz tih izvora.",
+    cta: "PREGLED",
+    to: "/izvori-ai",
+    touch: "sources_ai",
   },
 ];
 
@@ -85,10 +137,87 @@ const FIELD_ICONS = {
   ),
 };
 
+const CAROUSEL_GAP_PX = 20;
+
+/**
+ * 4 = desktop, 2 = tablet, 1 = mobile (broj celih kartica u viewportu)
+ */
+function useVisibleSlideCount() {
+  const [n, setN] = useState(4);
+  useEffect(() => {
+    const mqNarrow = window.matchMedia("(max-width: 639px)");
+    const mqTablet = window.matchMedia(
+      "(min-width: 640px) and (max-width: 1023px)"
+    );
+    const read = () => {
+      if (mqNarrow.matches) setN(1);
+      else if (mqTablet.matches) setN(2);
+      else setN(4);
+    };
+    read();
+    mqNarrow.addEventListener("change", read);
+    mqTablet.addEventListener("change", read);
+    return () => {
+      mqNarrow.removeEventListener("change", read);
+      mqTablet.removeEventListener("change", read);
+    };
+  }, []);
+  return n;
+}
+
 const Home = () => {
   const [field, setField] = useState(
     () => localStorage.getItem("selectedField") || "it"
   );
+  const visibleCount = useVisibleSlideCount();
+  const [startIndex, setStartIndex] = useState(0);
+  const [stepPx, setStepPx] = useState(0);
+  const viewportRef = useRef(null);
+  const trackRef = useRef(null);
+  const maxIndex = Math.max(0, FEATURES.length - visibleCount);
+  const canPrev = startIndex > 0;
+  const canNext = startIndex < maxIndex;
+
+  const measureStep = useCallback(() => {
+    const tr = trackRef.current;
+    if (!tr) return;
+    const first = tr.querySelector(".home-card");
+    if (!first) return;
+    const w = first.getBoundingClientRect().width;
+    if (w > 0) setStepPx(w + CAROUSEL_GAP_PX);
+  }, []);
+
+  useLayoutEffect(() => {
+    measureStep();
+  }, [measureStep, visibleCount]);
+
+  useEffect(() => {
+    const v = viewportRef.current;
+    if (!v) return undefined;
+    const ro = new ResizeObserver(() => measureStep());
+    ro.observe(v);
+    window.addEventListener("resize", measureStep);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measureStep);
+    };
+  }, [measureStep, visibleCount]);
+
+  useEffect(() => {
+    setStartIndex((i) => Math.min(i, maxIndex));
+  }, [maxIndex, visibleCount]);
+
+  const offsetPx = stepPx * startIndex;
+
+  const goPrev = useCallback(() => {
+    if (!canPrev) return;
+    setStartIndex((i) => Math.max(0, i - 1));
+  }, [canPrev]);
+
+  const goNext = useCallback(() => {
+    if (!canNext) return;
+    setStartIndex((i) => Math.min(maxIndex, i + 1));
+  }, [canNext, maxIndex]);
 
   useEffect(() => {
     syncProfileFieldFromCurrentAccount();
@@ -104,6 +233,10 @@ const Home = () => {
     { label: "Beleške", key: "notes", color: "#3b82f6" },
     { label: "Predavanja", key: "lectures", color: "#8b5cf6" },
     { label: "Flash cards", key: "flashcards", color: "#22c55e" },
+    { label: "Planer učenja", key: "study_planner", color: "#ea580c" },
+    { label: "Chat za smer", key: "field_chat", color: "#06b6d4" },
+    { label: "AI kviz", key: "ai_quiz", color: "#d97706" },
+    { label: "Izvori + AI", key: "sources_ai", color: "#6366f1" },
   ].map((r) => {
     const a = getFeatureAvg10(r.key);
     return {
@@ -166,94 +299,75 @@ const Home = () => {
         </p>
       </section>
 
-      {/* Feature cards */}
-      <div className="home__grid">
-        {features.map((f) => {
-          const statId = STAT_ID[f.id];
-          const body = (
-            <>
-              <div className="home-card__visual" aria-hidden="true">{f.emoji}</div>
-              <div className="home-card__body">
-                <h2 className="home-card__title">{f.title}</h2>
-                <p className="home-card__desc">{f.description}</p>
-                {f.id === "scenario" || f.id === "notes" || f.id === "lectures" || f.id === "flashcards" ? (
-                  <span className="home-card__btn">{f.cta} →</span>
-                ) : (
-                  <button
-                    type="button"
-                    className="home-card__btn"
-                    onClick={() => {
-                      recordFeatureTouch(statId, null);
-                    }}
-                  >
-                    {f.cta} →
-                  </button>
-                )}
-              </div>
-            </>
-          );
-          if (f.id === "scenario") {
-            return (
-              <Link
-                key={f.id}
-                to="/simulacija"
-                className={`home-card home-card--${f.id} home-card--link`}
-                style={{ "--rot": f.rot }}
-              >
-                {body}
-              </Link>
-            );
-          }
-          if (f.id === "notes") {
-            return (
-              <Link
-                key={f.id}
-                to="/notes"
-                className={`home-card home-card--${f.id} home-card--link`}
-                style={{ "--rot": f.rot }}
-                onClick={() => recordFeatureTouch(STAT_ID.notes, null)}
-              >
-                {body}
-              </Link>
-            );
-          }
-          if (f.id === "lectures") {
-            return (
-              <Link
-                key={f.id}
-                to="/predavanja"
-                className={`home-card home-card--${f.id} home-card--link`}
-                style={{ "--rot": f.rot }}
-                onClick={() => recordFeatureTouch(STAT_ID.lectures, null)}
-              >
-                {body}
-              </Link>
-            );
-          }
-          if (f.id === "flashcards") {
-            return (
-              <Link
-                key={f.id}
-                to="/flashcards"
-                className={`home-card home-card--${f.id} home-card--link`}
-                style={{ "--rot": f.rot }}
-                onClick={() => recordFeatureTouch(STAT_ID.flashcards, null)}
-              >
-                {body}
-              </Link>
-            );
-          }
-          return (
-            <article
-              key={f.id}
-              className={`home-card home-card--${f.id}`}
-              style={{ "--rot": f.rot }}
+      <section className="home__features" aria-label="Funkcije, karusel">
+        <div className="home__features__inner">
+          <div className="home__carousel">
+            <button
+              type="button"
+              className="home__carousel__btn home__carousel__btn--prev"
+              onClick={goPrev}
+              disabled={!canPrev}
+              aria-label="Prethodne kartice"
             >
-              {body}
-            </article>
-          );
-        })}
-      </div>
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M15 6L9 12l6 6" />
+              </svg>
+            </button>
+            <div
+              ref={viewportRef}
+              className="home__carousel__viewport"
+              style={{ ["--n"]: visibleCount }}
+            >
+              <div className="home__carousel__clip">
+                <div
+                  ref={trackRef}
+                  className="home__features__row home__features__row--track"
+                  style={{
+                    transform: `translate3d(-${Number.isFinite(offsetPx) ? offsetPx : 0}px, 0, 0)`,
+                  }}
+                >
+                  {FEATURES.map((f) => (
+                    <Link
+                      key={f.id}
+                      to={f.to}
+                      className={`home-card home-card--${f.theme} home-card--link`}
+                      style={{ "--rot": f.rot }}
+                      onClick={() => {
+                        if (f.touch) recordFeatureTouch(f.touch, null);
+                      }}
+                    >
+                      {f.badge ? (
+                        <span className="home-card__badge">{f.badge}</span>
+                      ) : null}
+                      <div className="home-card__visual" aria-hidden="true">
+                        {f.emoji}
+                      </div>
+                      <div className="home-card__body">
+                        <h2 className="home-card__title">{f.title}</h2>
+                        <p className="home-card__desc">{f.description}</p>
+                        <span className="home-card__btn">
+                          {f.cta} →
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="home__carousel__btn home__carousel__btn--next"
+              onClick={goNext}
+              disabled={!canNext}
+              aria-label="Sledeće kartice"
+            >
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
 
       {/* Progress panel */}
       <div className="home__progress">
@@ -301,7 +415,7 @@ const Home = () => {
       </div>
 
       {/* Feature highlights */}
-      <div className="home__features">
+      <div className="home__highlights">
         <div className="home__feature">
           <span className="home__feature-icon" style={{ "--fi": "#f06292" }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="24" height="24">

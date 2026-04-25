@@ -358,7 +358,7 @@ export default function Notes() {
     <div className={`notes notes--${field}`}>
       <div className="notes__bg" aria-hidden="true" />
       <Routes>
-        <Route path="/" element={<NotesListView />} />
+        <Route index element={<NotesListView />} />
         <Route path=":id" element={<NoteEditorView />} />
       </Routes>
     </div>
