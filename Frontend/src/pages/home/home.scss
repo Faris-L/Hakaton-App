@@ -7,6 +7,14 @@ $home-content-max: 1100px;
   --theme-blob: #{rgba($psy-primary, 0.20)};
   padding: 20px 40px;
 }
+
+@media only screen and (max-width: 550px){
+  .home--psychology {
+  --theme-blob: #{rgba($psy-primary, 0.20)};
+  padding: 20px 15px;
+}
+}
+
 .home--economy    { --theme-blob: #{rgba($eco-primary, 0.20)}; }
 .home--it         { --theme-blob: #{rgba($it-primary,  0.20)}; }
 
@@ -22,7 +30,7 @@ $home-content-max: 1100px;
   height: 100%;
   display: flex;
   flex-direction: column;
-  
+
   overflow-x: visible;
   overflow-y: auto;
 }
@@ -54,12 +62,27 @@ $home-content-max: 1100px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
+@media only screen and (max-width: 550px){
+  .home__nav{
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+}
+
 .home__nav-start,
 .home__nav-end {
   display: flex;
   align-items: center;
   gap: 0.65rem;
   min-width: 180px;
+}
+
+@media only screen and (max-width: 550px){
+  .home__nav-start,
+.home__nav-end{
+  min-width: 0;
+}
 }
 
 .home__nav-end {
@@ -161,6 +184,13 @@ $home-content-max: 1100px;
   overflow-x: visible;
 }
 
+  @media only screen and (max-width: 480px){
+    .home__main{
+      padding: 1.75rem 0rem;
+    }
+
+  }
+
 .home__hero {
   text-align: center;
 }
@@ -210,6 +240,13 @@ $carousel-desktop-row-max: calc(4 * 270px + 3 * #{$carousel-gap});
   padding: 0 max(1rem, 1.5rem);
   box-sizing: border-box;
   overflow: visible;
+}
+
+@media only screen and (max-width: 550px){
+  .home__features__inner{
+
+    padding: 0rem;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -323,7 +360,7 @@ $carousel-desktop-row-max: calc(4 * 270px + 3 * #{$carousel-gap});
   overflow: visible;
   min-width: 0;
   width: 100%;
-  
+
   container-type: inline-size;
   container-name: home-carousel;
   margin-inline: auto;
@@ -355,6 +392,13 @@ $carousel-desktop-row-max: calc(4 * 270px + 3 * #{$carousel-gap});
 .home__carousel__viewport:has(.home-card:hover) .home-card:not(:hover) {
   transform: scale(0.99) rotate(var(--rot, 0deg));
   opacity: 0.7;
+}
+
+@media only screen and (max-width: 550px){
+.home-card {
+  transform: scale(0.99) rotate(0deg) !important;
+  opacity: 0.7;
+}
 }
 
 .home-card--scenario  {
