@@ -2,13 +2,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { postJson } from "../../api/client.js";
 import { recordAiScore, syncProfileFieldFromCurrentAccount } from "../../lib/nexoraSession.js";
-import {
-  isSpeechSynthesisAvailable,
-  getBestTtsVoice,
-  speakClientMessage,
-  stopSimulationTts,
-  onTtsVoicesReady,
-} from "../../lib/simulationTts.js";
+import { speakClientMessage, stopSimulationTts } from "../../lib/simulationTts.js";
 import "./simulacija.scss";
 
 const FIELD_NAMES = {
@@ -28,6 +22,9 @@ const THEME_BODY = {
 const ALL_THEMES = Object.values(THEME_BODY);
 
 const DEFAULT_MIN = 20;
+
+const TTS_SOURCE_HINT =
+  "ElevenLabs TTS (eleven_multilingual_v2) — kroz backend /api/tts; ELEVENLABS_VOICE_ID u .env";
 
 function getField() {
   const s = localStorage.getItem("selectedField");
@@ -109,23 +106,15 @@ export default function Simulacija() {
   const [ttsAutoplay, setTtsAutoplay] = useState(
     () => localStorage.getItem("simTtsAutoplay") !== "0"
   );
-  const [ttsVoiceLabel, setTtsVoiceLabel] = useState("");
-  const [ttsBalkan, setTtsBalkan] = useState(false);
-  const [ttsVoicesReady, setTtsVoicesReady] = useState(false);
   const fileRef = useRef(null);
   const speechRef = useRef(null);
-  const ttsOk = isSpeechSynthesisAvailable();
-  const ttsUsable = ttsOk && ttsBalkan;
-  const ttsBalkanMissing = ttsOk && ttsVoicesReady && !ttsBalkan;
+  const ttsUsable = true;
 
   const fieldName = FIELD_NAMES[field] || "Informatika";
   const hasUserMessage = messages.some((m) => m.role === "user");
 
   const playClientLineTts = useCallback((text, msgId) => {
-    if (!ttsOk || !ttsBalkan || !String(text).trim()) {
-      return Promise.resolve();
-    }
-    if (!getBestTtsVoice()) {
+    if (!String(text).trim()) {
       return Promise.resolve();
     }
     return new Promise((resolve) => {
@@ -138,27 +127,12 @@ export default function Simulacija() {
         },
       });
     });
-  }, [ttsOk, ttsBalkan]);
+  }, []);
 
   const stopClientTts = useCallback(() => {
     stopSimulationTts();
     setSpeakingId(null);
   }, []);
-
-  useEffect(
-    () =>
-      onTtsVoicesReady(() => {
-        setTtsVoicesReady(true);
-        const v = getBestTtsVoice();
-        setTtsBalkan(!!v);
-        setTtsVoiceLabel(
-          v
-            ? `${v.name} (${(v.lang || "sr-RS").replace(/_/g, "-")})`
-            : ""
-        );
-      }),
-    []
-  );
 
   useEffect(() => {
     syncProfileFieldFromCurrentAccount();
@@ -305,7 +279,7 @@ export default function Simulacija() {
       setStarted(true);
       setFeedback(null);
       setInput("");
-      if (ttsAutoplay && ttsBalkan) {
+      if (ttsAutoplay) {
         void playClientLineTts(n.text, n.id);
       }
     } catch (e) {
@@ -313,7 +287,7 @@ export default function Simulacija() {
     } finally {
       setLoading(false);
     }
-  }, [field, stopVoice, stopClientTts, ttsAutoplay, ttsBalkan, playClientLineTts]);
+  }, [field, stopVoice, stopClientTts, ttsAutoplay, playClientLineTts]);
 
   const onKreni = () => {
     if (loading) return;
@@ -355,7 +329,7 @@ export default function Simulacija() {
       };
       const withAi = [...next, aimsg];
       setMessages(withAi);
-      if (ttsAutoplay && ttsBalkan) {
+      if (ttsAutoplay) {
         await playClientLineTts(aimsg.text, aimsg.id);
       }
 
@@ -391,7 +365,6 @@ export default function Simulacija() {
   };
 
   const onTtsButton = (msg) => {
-    if (!ttsBalkan) return;
     if (speakingId === msg.id) {
       stopClientTts();
       return;
@@ -501,16 +474,7 @@ export default function Simulacija() {
             {started ? "Počni iznova" : "Kreni simulaciju"}
           </button>
         </div>
-        {ttsBalkanMissing ? (
-          <div className="sim-tts-missing" role="alert">
-            <strong>Glas nije dostupan (srpski / hrvatski / bosanski).</strong> U listi
-            glasova pregledača nema jezika <code>sr</code>, <code>hr</code> ili <code>bs</code>. Dodaj
-            jezički / govorni paket (Windows: Podešavanja → Jezik i vreme) pa osveži stranicu. TTS
-            je isključen dok se ne pojavi bar jedan od tih glasova.
-          </div>
-        ) : null}
-        {ttsOk && ttsBalkan ? (
-          <div
+        <div
             className={
               "sim-head__tts" +
               (ttsAutoplay ? " sim-head__tts--on" : " sim-head__tts--off")
@@ -537,8 +501,7 @@ export default function Simulacija() {
                 Automatski pusti glas klijenta
               </span>
             </label>
-            {ttsVoiceLabel ? (
-              <p className="sim-head__tts-voice" title="Aktivni glas: samo sr / hr / bs">
+            <p className="sim-head__tts-voice" title="ElevenLabs preko backenda">
                 <svg
                   className="sim-head__tts-voice-ic"
                   viewBox="0 0 24 24"
@@ -549,16 +512,14 @@ export default function Simulacija() {
                 >
                   <path d="M3 9v6h4l5 4V5L7 9H3zm14.5 1.5A4.5 4.5 0 0 0 16 5v2a2.5 2.5 0 0 1 0 4v2a4.5 4.5 0 0 0-1-7z" />
                 </svg>{" "}
-                {ttsVoiceLabel} · reprodukcija <code>lang=sr-RS</code>
+                {TTS_SOURCE_HINT}
               </p>
-            ) : null}
             <p className="sim-head__tts-hint">
-              Na klijentovoj poruci: <strong>Pusti glas</strong> (samo balkanski glasovi
-              u sistemu). Tvoj odgovor možeš <strong>snimiti glasom</strong> (mikrofon) — tada se TTS
-              gasi.
+              Klijentova poruka ide na <code>POST /api/tts</code> (multilingvni model). Ako TTS ne
+              radi, proveri ključ u <code>.env</code> i konzolu — simulacija i dalje radi. Tvoj
+              odgovor možeš <strong>snimiti glasom</strong> (mikrofon) — tada se audio gasi.
             </p>
           </div>
-        ) : null}
         <h1 className="sim-title">Jedan životni razgovor</h1>
         <p className="sim-sub">
           Uloga klijenta (AI) je da vodi <strong>logičan, realan</strong> dijalog; kada mu odgovor
