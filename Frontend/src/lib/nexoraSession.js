@@ -138,6 +138,12 @@ export function isSessionActive() {
   return Boolean(reg[k]);
 }
 
+/** Ključ naloga (lowercase) za API beleški — uvek uz aktivan session */
+export function getSessionUserKey() {
+  if (localStorage.getItem(K.session) !== "1") return "";
+  return getCurrentUserKey() || "";
+}
+
 function simpleEnc(pass) {
   return btoa(encodeURIComponent(pass));
 }

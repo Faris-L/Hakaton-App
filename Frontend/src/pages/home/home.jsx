@@ -176,7 +176,7 @@ const Home = () => {
               <div className="home-card__body">
                 <h2 className="home-card__title">{f.title}</h2>
                 <p className="home-card__desc">{f.description}</p>
-                {f.id === "scenario" ? (
+                {f.id === "scenario" || f.id === "notes" || f.id === "lectures" || f.id === "flashcards" ? (
                   <span className="home-card__btn">{f.cta} →</span>
                 ) : (
                   <button
@@ -192,16 +192,58 @@ const Home = () => {
               </div>
             </>
           );
-          return f.id === "scenario" ? (
-            <Link
-              key={f.id}
-              to="/simulacija"
-              className={`home-card home-card--${f.id} home-card--link`}
-              style={{ "--rot": f.rot }}
-            >
-              {body}
-            </Link>
-          ) : (
+          if (f.id === "scenario") {
+            return (
+              <Link
+                key={f.id}
+                to="/simulacija"
+                className={`home-card home-card--${f.id} home-card--link`}
+                style={{ "--rot": f.rot }}
+              >
+                {body}
+              </Link>
+            );
+          }
+          if (f.id === "notes") {
+            return (
+              <Link
+                key={f.id}
+                to="/notes"
+                className={`home-card home-card--${f.id} home-card--link`}
+                style={{ "--rot": f.rot }}
+                onClick={() => recordFeatureTouch(STAT_ID.notes, null)}
+              >
+                {body}
+              </Link>
+            );
+          }
+          if (f.id === "lectures") {
+            return (
+              <Link
+                key={f.id}
+                to="/predavanja"
+                className={`home-card home-card--${f.id} home-card--link`}
+                style={{ "--rot": f.rot }}
+                onClick={() => recordFeatureTouch(STAT_ID.lectures, null)}
+              >
+                {body}
+              </Link>
+            );
+          }
+          if (f.id === "flashcards") {
+            return (
+              <Link
+                key={f.id}
+                to="/flashcards"
+                className={`home-card home-card--${f.id} home-card--link`}
+                style={{ "--rot": f.rot }}
+                onClick={() => recordFeatureTouch(STAT_ID.flashcards, null)}
+              >
+                {body}
+              </Link>
+            );
+          }
+          return (
             <article
               key={f.id}
               className={`home-card home-card--${f.id}`}
