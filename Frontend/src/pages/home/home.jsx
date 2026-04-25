@@ -74,8 +74,8 @@ const FEATURES = [
     theme: "fieldchat",
     rot: "2deg",
     emoji: "💬",
-    title: "Chat za smer",
-    description: "Opšta pitanja o oblasti koju trenutno biraš.",
+    title: "Chat Mudrosti",
+    description: "Pitaj o oblasti koju učiš — u kontekstu tvog smera.",
     cta: "PREGLED",
     to: "/field-chat",
     touch: "field_chat",
@@ -96,8 +96,8 @@ const FEATURES = [
     theme: "sources",
     rot: "2.8deg",
     emoji: "📎",
-    title: "Izvori + AI",
-    description: "Tvoji fajlovi; odgovori samo iz tih izvora.",
+    title: "Obrada fajlova",
+    description: "Okači ili nalepi tekst; odgovor AI samo iz tog sadržaja.",
     cta: "PREGLED",
     to: "/izvori-ai",
     touch: "sources_ai",
@@ -231,9 +231,9 @@ const Home = () => {
     { label: "Predavanja", key: "lectures", color: "#8b5cf6" },
     { label: "Flash cards", key: "flashcards", color: "#22c55e" },
     { label: "Planer učenja", key: "study_planner", color: "#ea580c" },
-    { label: "Chat za smer", key: "field_chat", color: "#06b6d4" },
+    { label: "Chat Mudrosti", key: "field_chat", color: "#06b6d4" },
     { label: "AI kviz", key: "ai_quiz", color: "#d97706" },
-    { label: "Izvori + AI", key: "sources_ai", color: "#6366f1" },
+    { label: "Obrada fajlova", key: "sources_ai", color: "#6366f1" },
   ].map((r) => {
     const a = getFeatureAvg10(r.key);
     return {

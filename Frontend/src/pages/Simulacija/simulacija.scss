@@ -139,6 +139,15 @@ $sim-indigo: #6366f1;
   margin-bottom: 0.9rem;
 }
 
+.sim-head__right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem 0.7rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
 .sim-badge {
   display: inline-flex;
   align-items: center;
@@ -201,6 +210,42 @@ $sim-indigo: #6366f1;
     border-color 0.5s ease,
     box-shadow 0.5s ease;
   overflow: hidden;
+}
+
+.sim-head__tts--inline {
+  width: auto;
+  max-width: 11.5rem;
+  margin: 0;
+  margin-bottom: 0;
+  padding: 0.28rem 0.4rem 0.26rem;
+  border-radius: 999px;
+}
+
+.sim-tts--compact {
+  gap: 0.32rem;
+}
+
+.sim-tts--compact .sim-tts__text {
+  font-size: 0.65rem;
+  font-weight: 700;
+  max-width: 4.2rem;
+  line-height: 1.1;
+}
+
+.sim-tts--compact .sim-tts__track {
+  width: 1.95rem;
+  height: 1.08rem;
+}
+
+.sim-tts--compact .sim-tts__knob {
+  top: 0.1rem;
+  left: 0.12rem;
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.sim-tts--on.sim-tts--compact .sim-tts__knob {
+  transform: translateX(0.84rem) scale(1.02);
 }
 
 .sim-head__tts--on {

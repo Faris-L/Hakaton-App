@@ -166,13 +166,18 @@ export default function LecturePlayer({ lecture, open, onClose }) {
         </div>
 
         <div className="lecture-player__ai">
+          {isVideo ? (
+            <p className="lecture-player__summary-note">
+              Sažetak koristi naslov, opis i link videa (YouTube ili mp4). Transkript snimka se ne šalje modelu.
+            </p>
+          ) : null}
           <button
             type="button"
             className="lecture-player__summarize"
             onClick={handleSummarize}
             disabled={summaryBusy || !lecture?.id}
           >
-            {summaryBusy ? "…" : "Sažmi predavanje"}
+            {summaryBusy ? "…" : isVideo ? "Sažmi video" : "Sažmi predavanje"}
           </button>
           {summaryErr ? (
             <p className="lecture-player__summary-err" role="alert">
