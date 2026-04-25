@@ -1,8 +1,5 @@
 import { useNavigate } from "react-router-dom";
 
-/**
- * @param {{ set: { id: number, title: string, description?: string, subject: string, cards_count: number, created_at?: string }, rot: string }} props
- */
 export default function FlashcardSetCard({ set, rot }) {
   const navigate = useNavigate();
 

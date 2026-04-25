@@ -1,9 +1,6 @@
 import { Link } from "react-router-dom";
 import "./featureSoon.scss";
 
-/**
- * @param {{ title: string, subtitle: string, emoji: string }} props
- */
 export default function FeatureSoon({ title, subtitle, emoji = "◆" }) {
   return (
     <div className="fs">

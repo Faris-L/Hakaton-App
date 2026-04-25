@@ -9,9 +9,6 @@ use Throwable;
 
 class LectureSummarizeController extends Controller
 {
-    /**
-     * Kratak sažetak sadržaja predavanja (samo tekst, nema automatski beleški/flashcard).
-     */
     public function summarize(Request $request)
     {
         $data = $request->validate([

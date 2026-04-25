@@ -12,7 +12,6 @@
   border: 0;
 }
 
-// Uskladio sa home karticama; poseban layout za listu + editor
 .notes {
   position: relative;
   height: 100%;
@@ -160,7 +159,6 @@
   margin-bottom: 1rem;
 }
 
-// Grid: isti osećaj kao home__grid (kartice u redu / wrap)
 .notes__grid {
   display: flex;
   flex-direction: row;
@@ -172,7 +170,6 @@
   align-content: flex-start;
 }
 
-// Kartica: isti stil tokeni kao .home-card--notes
 .notes__card {
   --card-surface: #f0f5ff;
   --card-visual-bg: #dbeafe;
@@ -273,7 +270,6 @@
   overflow: hidden;
 }
 
-// Editor
 .notes-editor {
   max-width: 720px;
   margin: 0 auto;

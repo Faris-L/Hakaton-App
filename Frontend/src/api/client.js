@@ -7,19 +7,10 @@ export function userHeader() {
   return k ? { "X-Nexora-User": k } : {};
 }
 
-/**
- * Generički AI chat (Laravel /ai). Opciono system uputstvo.
- * @param {{ message: string, system?: string }} body
- * @returns {Promise<{ reply: string }>}
- */
 export async function postAiAsk(body) {
   return postJson("/ai", body);
 }
 
-/**
- * @param {string} path
- * @param {Record<string, unknown>} [body]
- */
 export async function postJson(path, body) {
   const url = path.startsWith("http") ? path : `${BASE}${path}`;
   const res = await fetch(url, {
@@ -41,12 +32,6 @@ export async function postJson(path, body) {
   return data;
 }
 
-/**
- * TTS: vraća audio/mpeg blob (ElevenLabs preko backenda).
- * @param {string} path npr. /api/tts
- * @param {{ text: string }} body
- * @returns {Promise<Blob>}
- */
 export async function postTtsAudio(path, body) {
   const url = path.startsWith("http") ? path : `${BASE}${path}`;
   const res = await fetch(url, {
@@ -79,11 +64,6 @@ export async function postTtsAudio(path, body) {
   return res.blob();
 }
 
-// --- Beleške (Laravel: user_key preko zaglavlja) ---
-
-/**
- * @param {string} [subject] medicine|psychology|economy|it — izostavi za sve
- */
 export async function fetchNotesList(subject) {
   const q =
     subject && subject !== "all"
@@ -109,9 +89,6 @@ export async function fetchNotesList(subject) {
   return data;
 }
 
-/**
- * @param {{ title: string, content: string, subject: string }} body
- */
 export async function createNote(body) {
   const path = "/notes";
   const url = path.startsWith("http") ? path : `${BASE}${path}`;
@@ -135,10 +112,6 @@ export async function createNote(body) {
   return data;
 }
 
-/**
- * @param {number} id
- * @param {{ title: string, content: string, subject: string }} body
- */
 export async function updateNote(id, body) {
   const path = `/notes/${id}`;
   const url = path.startsWith("http") ? path : `${BASE}${path}`;
@@ -162,9 +135,6 @@ export async function updateNote(id, body) {
   return data;
 }
 
-/**
- * @param {number} id
- */
 export async function deleteNote(id) {
   const path = `/notes/${id}`;
   const url = path.startsWith("http") ? path : `${BASE}${path}`;
@@ -186,10 +156,6 @@ export async function deleteNote(id) {
   return data;
 }
 
-/**
- * AI pomoć za tekst beleške (samo sređivanje proširivanje, bez drugih formata).
- * @param {string} text
- */
 export async function postNoteAssist(text) {
   return postJson("/api/notes/assist", { text });
 }

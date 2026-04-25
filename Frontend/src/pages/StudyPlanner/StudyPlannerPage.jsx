@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { recordFeatureTouch, syncProfileFieldFromCurrentAccount } from "../../lib/nexoraSession.js";
+import {
+  getAccountField,
+  getInputPlaceholder,
+  recordFeatureTouch,
+  syncProfileFieldFromCurrentAccount,
+} from "../../lib/nexoraSession.js";
 import "./studyPlanner.scss";
 
 const STORAGE = "nexora_study_planner_v1";
@@ -16,9 +21,6 @@ function loadItems() {
   }
 }
 
-/**
- * @returns {{ id: string, title: string, due: string, done: boolean }[]}
- */
 function parseItems() {
   return loadItems().map((x) => ({
     id: String(x.id || crypto.randomUUID?.() || Date.now()),
@@ -35,10 +37,12 @@ function saveItems(items) {
 export default function StudyPlannerPage() {
   const [title, setTitle] = useState("");
   const [due, setDue] = useState("");
+  const [field, setField] = useState("it");
   const [items, setItems] = useState(() => parseItems());
 
   useEffect(() => {
     syncProfileFieldFromCurrentAccount();
+    setField(getAccountField() || "it");
     recordFeatureTouch("study_planner", null);
   }, []);
 
@@ -104,7 +108,7 @@ export default function StudyPlannerPage() {
                 className="sp__input"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="npr. Ponovi digestivne enzime"
+                placeholder={getInputPlaceholder(field, "studyTask")}
                 aria-labelledby="sp-task-label"
               />
             </div>

@@ -10,7 +10,7 @@ import {
   updateFlashcard,
   updateFlashcardSet,
 } from "../../api/flashcardsApi.js";
-import { getAccountField } from "../../lib/nexoraSession.js";
+import { getAccountField, getInputPlaceholder } from "../../lib/nexoraSession.js";
 
 const DIFFS = [
   { id: "easy", label: "Lako" },
@@ -41,13 +41,14 @@ export default function FlashcardEditor() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [cards, setCards] = useState([emptyCard()]);
-  const [deletedIds, setDeletedIds] = useState(/** @type {Set<number>} */ (new Set()));
+  const [deletedIds, setDeletedIds] = useState(() => new Set());
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState(null);
   const [genOpen, setGenOpen] = useState(false);
   const [genTopic, setGenTopic] = useState("");
   const [genCount, setGenCount] = useState(5);
+  const [field, setField] = useState("it");
   const [genBusy, setGenBusy] = useState(false);
   const [genErr, setGenErr] = useState(null);
 
@@ -87,6 +88,10 @@ export default function FlashcardEditor() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    setField(getAccountField() || "it");
+  }, []);
 
   const addRow = () => {
     setCards((c) => [...c, emptyCard()]);
@@ -246,7 +251,7 @@ export default function FlashcardEditor() {
             className="fc-input"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="npr. SQL osnove"
+            placeholder={getInputPlaceholder(field, "flashTitle")}
           />
         </label>
         <p className="fc-field-hint">Predmet je uvek smer s uvoda — nije odvojen izbor ovde.</p>
@@ -348,7 +353,7 @@ export default function FlashcardEditor() {
                 className="fc-input"
                 value={genTopic}
                 onChange={(e) => setGenTopic(e.target.value)}
-                placeholder="npr. Neuron, sinapsa, akcioni potencijal"
+                placeholder={getInputPlaceholder(field, "flashGenTopic")}
               />
             </label>
             <label className="fc-field">

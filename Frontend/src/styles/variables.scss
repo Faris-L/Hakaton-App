@@ -1,32 +1,20 @@
-$med-primary: #e63946;        // crvena (energija, hitnost)
-$med-secondary: #fff5f5;      // svetla crvenkasta pozadina
+$med-primary: #e63946;
+$med-secondary: #fff5f5;
 $med-accent: #ffb3b3;
 $med-text: #2b2b2b;
-
 
 $psy-primary: #6a4c93;        
 $psy-secondary: #f5f0ff;
 $psy-accent: #cdb4db;
 $psy-text: #2b2b2b;
 
-/* EKONOMIJA */
-$eco-primary: #2a9d8f;        // zelena (novac, stabilnost)
+$eco-primary: #2a9d8f;
 $eco-secondary: #f0fdfa;
 $eco-accent: #94d2bd;
 $eco-text: #1f2933;
 
-/* INFORMATIKA */
-$it-primary: #3a86ff;         // plava (tech)
+$it-primary: #3a86ff;
 $it-secondary: #eef6ff;
 $it-accent: #a0c4ff;
 $it-text: #0f172a;
 
-
-// $med-primary → glavna akcija
-// (dugmad, linkovi, active state, highlight)
-// $med-secondary → pozadina stranice / sekcija
-// (card background, page background)
-// $med-accent → hover / dodatni naglasak
-// (hover na dugmad, border, badge)
-// $med-text → tekst
-// (naslovi, paragrafi na svetloj pozadini)

@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { postAiAsk } from "../../api/client.js";
-import { recordFeatureTouch, syncProfileFieldFromCurrentAccount } from "../../lib/nexoraSession.js";
+import {
+  getAccountField,
+  getInputPlaceholder,
+  recordFeatureTouch,
+  syncProfileFieldFromCurrentAccount,
+} from "../../lib/nexoraSession.js";
 import "./sourcesAi.scss";
 
 const SYSTEM = `Odgovaraj isključivo na osnovu teksta koji korisnik daje ispod reči IZVORI. Ako u izvoru nema dovoljno podataka, napiši jednu rečenu: u tvom izvoru to nije pokriveno — i pokušaj reći šta fali. Nema izmišljanja. Srpski (latinica), jasno i kratko.`;
@@ -27,10 +32,12 @@ export default function SourcesAiPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
   const [fileName, setFileName] = useState(null);
+  const [field, setField] = useState("it");
   const fileRef = useRef(null);
 
   useEffect(() => {
     syncProfileFieldFromCurrentAccount();
+    setField(getAccountField() || "it");
   }, []);
 
   const onPickFile = useCallback(() => {
@@ -179,7 +186,7 @@ ${question.trim()}
                 className="sa__ta"
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
-                placeholder="Npr. odlomak iz skripte, ispitna pitanja, sažetak…"
+                placeholder={getInputPlaceholder(field, "sourcesPaste")}
                 disabled={loading}
                 aria-labelledby="sa-source"
               />
@@ -195,7 +202,7 @@ ${question.trim()}
                 className="sa__ta sa__ta--q"
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Šta te zanima iz gornjeg teksta?"
+                placeholder={getInputPlaceholder(field, "sourcesQuestion")}
                 disabled={loading}
                 aria-labelledby="sa-q"
               />

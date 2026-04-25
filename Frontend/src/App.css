@@ -1,4 +1,4 @@
-/* Pun viewport za rute (Intro / Home) */
+
 .app-root {
   display: flex;
   flex-direction: column;
@@ -12,8 +12,14 @@
   overflow: hidden;
 }
 
-/* Simulacija: skrol + vidljiv donji padding (inače overflow parenta seče) */
 .app-root:has(> .sim) {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.app-root:has(.profil) {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;

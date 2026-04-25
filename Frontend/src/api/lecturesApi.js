@@ -6,7 +6,6 @@ import {
 
 const BASE = import.meta.env.VITE_API_URL ?? "";
 
-/** @param {object} lecture */
 export function getLecturePlayUrl(lecture) {
   if (!lecture) return null;
   if (lecture.type === "audio") {
@@ -15,7 +14,6 @@ export function getLecturePlayUrl(lecture) {
   return lecture.video_url || null;
 }
 
-/** @param {string} [subject] */
 export async function fetchLecturesList(subject) {
   const q =
     subject && subject !== "all"
@@ -43,7 +41,6 @@ export async function fetchLecturesList(subject) {
   return getMockLectures(subject);
 }
 
-/** @param {number} id */
 export async function fetchLectureById(id) {
   const path = `/lectures/${id}`;
   const url = path.startsWith("http") ? path : `${BASE}${path}`;
@@ -63,25 +60,14 @@ export async function fetchLectureById(id) {
   return getMockLectureById(id);
 }
 
-/**
- * @param {number} lectureId
- * @returns {Promise<{ summary: string }>}
- */
 export async function postLectureSummarize(lectureId) {
   return postJson("/api/lectures/summarize", { lecture_id: lectureId });
 }
 
-/**
- * @param {object} body
- */
 export async function createLecture(body) {
   return postJson("/lectures", body);
 }
 
-/**
- * @param {number} id
- * @param {object} body
- */
 export async function updateLecture(id, body) {
   const path = `/lectures/${id}`;
   const url = path.startsWith("http") ? path : `${BASE}${path}`;
@@ -96,9 +82,6 @@ export async function updateLecture(id, body) {
   return parseRes(res);
 }
 
-/**
- * @param {number} id
- */
 export async function deleteLecture(id) {
   const path = `/lectures/${id}`;
   const url = path.startsWith("http") ? path : `${BASE}${path}`;

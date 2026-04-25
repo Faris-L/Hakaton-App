@@ -1,6 +1,3 @@
-/**
- * Jedna kartica sa 3D flip animacijom (pitanje / odgovor).
- */
 export default function FlashcardFlipCard({
   question,
   answer,

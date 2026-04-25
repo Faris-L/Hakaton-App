@@ -102,9 +102,15 @@ code {
   background: var(--code-bg);
 }
 
-/* Početna (.home): ne reži vodoravno hover na karticama u #root lancu */
 #root:has(.home) {
   overflow-x: visible;
   overflow-y: auto;
+  max-height: 100%;
+}
+
+#root:has(.profil) {
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   max-height: 100%;
 }

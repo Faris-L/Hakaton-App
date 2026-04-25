@@ -4,6 +4,7 @@ import { postAiAsk } from "../../api/client.js";
 import {
   FIELD_NAMES,
   getAccountField,
+  getInputPlaceholder,
   recordFeatureTouch,
   syncProfileFieldFromCurrentAccount,
 } from "../../lib/nexoraSession.js";
@@ -19,11 +20,6 @@ Format (tačno 5 stavki u nizu stavke):
 
 Pitanja: konkretna, zanimljiva, prilagođena smeru i temi. Odgovori: tačni, jasni. Nema Markdovna, nema \`\`\` zaokruživača.`;
 
-/**
- * Pokušaj da izvučeš { stavke: [{ pitanje, odgovor }] } iz modelovog odgovora.
- * @param {string} raw
- * @returns {{ pitanje: string, odgovor: string }[] | null}
- */
 function parseKvizStavke(raw) {
   if (!raw || typeof raw !== "string") return null;
   let t = raw.trim();
@@ -57,14 +53,24 @@ export default function AiQuizPage() {
   const [field, setField] = useState("it");
   const [topic, setTopic] = useState("");
   const [outRaw, setOutRaw] = useState("");
-  const [items, setItems] = useState(/** @type {{ pitanje: string, odgovor: string }[] | null} */ (null));
+  const [items, setItems] = useState(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
+  const [revealed, setRevealed] = useState({});
+  const [rawRevealed, setRawRevealed] = useState(false);
 
   useEffect(() => {
     syncProfileFieldFromCurrentAccount();
     setField(getAccountField() || "it");
   }, []);
+
+  useEffect(() => {
+    setRevealed({});
+  }, [items]);
+
+  useEffect(() => {
+    setRawRevealed(false);
+  }, [outRaw]);
 
   const run = useCallback(async () => {
     const t = topic.trim();
@@ -124,7 +130,7 @@ export default function AiQuizPage() {
               className="aq__input"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="npr. SQL indeksi, CNS neurotransmiteri, tržišna ravnoteža…"
+              placeholder={getInputPlaceholder(field, "aiQuizTopic")}
               disabled={loading}
               aria-labelledby="aq-topic"
             />
@@ -138,17 +144,37 @@ export default function AiQuizPage() {
             <div className="aq__result" role="region" aria-label="Pitanja i rešenja">
               <p className="aq__out-label">Pitanja i rešenja</p>
               <ol className="aq__list">
-                {items.map((it, i) => (
-                  <li key={i} className="aq__item">
-                    <p className="aq__q">
-                      <span className="aq__n">{i + 1}.</span> {it.pitanje}
-                    </p>
-                    <div className="aq__a-wrap">
-                      <span className="aq__a-badge">Rešenje</span>
-                      <p className="aq__a">{it.odgovor}</p>
-                    </div>
-                  </li>
-                ))}
+                {items.map((it, i) => {
+                  const isRev = Boolean(revealed[i]);
+                  return (
+                    <li key={i} className="aq__item">
+                      <p className="aq__q">
+                        <span className="aq__n">{i + 1}.</span> {it.pitanje}
+                      </p>
+                      <div className="aq__a-wrap">
+                        <div className="aq__a-head">
+                          <span className="aq__a-badge">Rešenje</span>
+                          <button
+                            type="button"
+                            className="aq__reveal"
+                            onClick={() => setRevealed((r) => ({ ...r, [i]: !r[i] }))}
+                            aria-expanded={isRev}
+                            aria-controls={`aq-ans-${i}`}
+                          >
+                            {isRev ? "Sakrij" : "Otkrij rešenje"}
+                          </button>
+                        </div>
+                        <p
+                          id={`aq-ans-${i}`}
+                          className={`aq__a ${!isRev ? "aq__a--mask" : ""}`}
+                          aria-hidden={!isRev}
+                        >
+                          {it.odgovor}
+                        </p>
+                      </div>
+                    </li>
+                  );
+                })}
               </ol>
             </div>
           ) : outRaw && !loading ? (
@@ -159,7 +185,24 @@ export default function AiQuizPage() {
               <p className="aq__fallback-hint">
                 JSON nije prepoznat — prikazujem sirovi tekst. Pokušaj ponovo sa istom temom.
               </p>
-              <div className="aq__out" role="region" aria-labelledby="aq-raw-label">
+              <div className="aq__out-toolbar">
+                <button
+                  type="button"
+                  className="aq__reveal"
+                  onClick={() => setRawRevealed((v) => !v)}
+                  aria-expanded={rawRevealed}
+                  aria-controls="aq-raw-block"
+                >
+                  {rawRevealed ? "Sakrij" : "Otkrij sadržaj"}
+                </button>
+              </div>
+              <div
+                id="aq-raw-block"
+                className={`aq__out ${!rawRevealed ? "aq__out--mask" : ""}`}
+                role="region"
+                aria-labelledby="aq-raw-label"
+                aria-hidden={!rawRevealed}
+              >
                 {outRaw}
               </div>
             </div>

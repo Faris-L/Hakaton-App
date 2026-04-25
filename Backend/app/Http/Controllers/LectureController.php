@@ -67,9 +67,6 @@ class LectureController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    /**
-     * @return array<string, mixed>|int  array ili 422
-     */
     private function validatePayload(Request $request, bool $isUpdate, ?Lecture $current = null): array|int
     {
         $fields = [

@@ -8,9 +8,6 @@ use Throwable;
 
 class NoteAssistController extends Controller
 {
-    /**
-     * Lagana pomoć oko pisanja beleške — proširuje/uredi tekst, bez drugih formata.
-     */
     public function assist(Request $request)
     {
         $data = $request->validate([

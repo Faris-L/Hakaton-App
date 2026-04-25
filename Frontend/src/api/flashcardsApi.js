@@ -15,9 +15,6 @@ async function parseJsonRes(res) {
   return data;
 }
 
-/**
- * @param {string} [subject]
- */
 export async function fetchFlashcardSets(subject) {
   const q =
     subject && subject !== "all"
@@ -44,9 +41,6 @@ export async function fetchFlashcardSets(subject) {
   return getMockSetList(subject);
 }
 
-/**
- * @param {number} id
- */
 export async function fetchFlashcardSet(id) {
   const path = `/flashcard-sets/${id}`;
   const url = path.startsWith("http") ? path : `${BASE}${path}`;
@@ -105,10 +99,6 @@ export async function deleteFlashcardSet(id) {
   return parseJsonRes(res);
 }
 
-/**
- * @param {number} setId
- * @param {Array<{ question: string, answer: string, difficulty: string }>} cards
- */
 export async function addFlashcardsToSet(setId, cards) {
   const path = `/flashcard-sets/${setId}/cards`;
   const url = path.startsWith("http") ? path : `${BASE}${path}`;
@@ -149,10 +139,6 @@ export async function deleteFlashcard(id) {
   return parseJsonRes(res);
 }
 
-/**
- * @param {string} topic
- * @param {number} count
- */
 export async function generateFlashcards(topic, count) {
   return postJson("/api/flashcard-sets/generate", { topic, count });
 }

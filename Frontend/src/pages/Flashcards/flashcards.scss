@@ -12,13 +12,11 @@
   border: 0;
 }
 
-// —— Tema (zelena) ——
 .fc-wrap--medicine   { --fc-blob: #{rgba($med-primary, 0.18)}; }
 .fc-wrap--psychology { --fc-blob: #{rgba($psy-primary, 0.18)}; }
 .fc-wrap--economy    { --fc-blob: #{rgba($eco-primary, 0.18)}; }
 .fc-wrap--it         { --fc-blob: #{rgba($it-primary, 0.16)}; }
 
-// akcent: home flashcards zelena
 .fc-wrap {
   --fc-primary: #22c55e;
   --fc-primary-d: #16a34a;
@@ -244,7 +242,6 @@
   }
 }
 
-// —— Inner (editor / practice) ——
 .fc-inner {
   max-width: 640px;
   margin: 0 auto;
@@ -269,7 +266,6 @@
   }
 }
 
-// Flip card
 .fc-flip {
   display: block;
   width: 100%;
@@ -348,7 +344,6 @@
   font-weight: 600;
 }
 
-// Practice
 .fc-practice__head {
   text-align: center;
   margin-bottom: 0.75rem;
@@ -483,7 +478,6 @@
   justify-content: center;
 }
 
-// Editor
 .fc-editor__head {
   display: flex;
   flex-wrap: wrap;
@@ -600,7 +594,6 @@
   border-top: 1px solid #e2e8f0;
 }
 
-// Modal
 .fc-modal-bg {
   position: fixed;
   inset: 0;

@@ -1,3 +1,4 @@
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   getDisplayName,
@@ -9,6 +10,7 @@ import {
   FIELD_NAMES,
   logoutSession,
   resetAllNexoraData,
+  updateCurrentAccountProfile,
 } from "../../lib/nexoraSession.js";
 import "./profil.scss";
 
@@ -94,13 +96,54 @@ function toolIcon(mod) {
   }
 }
 
+function profileInitials(acc, displayName) {
+  const fn = (acc?.firstName || "").trim();
+  const ln = (acc?.lastName || "").trim();
+  if (fn && ln) return (fn[0] + ln[0]).toUpperCase();
+  const n = (displayName || "").trim();
+  if (n) return n[0].toUpperCase();
+  return "?";
+}
+
 export default function Profil() {
   const navigate = useNavigate();
   const acc = getAccount();
   const field = getAccountField() || localStorage.getItem("selectedField") || "it";
   const name = getDisplayName();
   const overall = getOverallAvg10();
-  const initial = (name && name.trim()[0] ? name.trim()[0] : "?").toUpperCase();
+  const initial = profileInitials(acc, name);
+  const username = acc?.name || "";
+
+  const [editing, setEditing] = useState(false);
+  const [dFn, setDFn] = useState("");
+  const [dLn, setDLn] = useState("");
+  const [dFac, setDFac] = useState("");
+  const [dAddr, setDAddr] = useState("");
+
+  useEffect(() => {
+    if (!acc) return;
+    setDFn(acc.firstName || "");
+    setDLn(acc.lastName || "");
+    setDFac(acc.faculty || "");
+    setDAddr(acc.address || "");
+  }, [acc]);
+
+  const onSaveProfile = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!dFn.trim() || dFn.trim().length < 2 || dLn.trim().length < 2) return;
+      if (!dFac.trim() || dFac.trim().length < 2) return;
+      if (!dAddr.trim() || dAddr.trim().length < 4) return;
+      updateCurrentAccountProfile({
+        firstName: dFn.trim(),
+        lastName: dLn.trim(),
+        faculty: dFac.trim(),
+        address: dAddr.trim(),
+      });
+      setEditing(false);
+    },
+    [dFn, dLn, dFac, dAddr]
+  );
 
   const onLogout = () => {
     logoutSession();
@@ -156,9 +199,118 @@ export default function Profil() {
               </svg>
             </span>
             Smer: <strong>{FIELD_NAMES[field] || "Informatika"}</strong>
-            <span className="profil__field-hint"> (veza ime ↔ smer se pamti po nalogu)</span>
           </p>
         </div>
+      </section>
+
+      <section className="profil__details" aria-labelledby="profil-podatak-h2">
+        <div className="profil__details-head">
+          <h2 id="profil-podatak-h2" className="profil__h2">
+            Podaci o studentu
+          </h2>
+          {!editing ? (
+            <button
+              type="button"
+              className="profil__details-edit"
+              onClick={() => setEditing(true)}
+            >
+              Uredi
+            </button>
+          ) : null}
+        </div>
+        {editing ? (
+          <form className="profil__details-form" onSubmit={onSaveProfile}>
+            <div className="profil__details-row2">
+              <label className="profil__details-lab" htmlFor="p-fn">
+                Ime
+                <input
+                  id="p-fn"
+                  className="profil__details-inp"
+                  value={dFn}
+                  onChange={(e) => setDFn(e.target.value)}
+                  minLength={2}
+                  required
+                />
+              </label>
+              <label className="profil__details-lab" htmlFor="p-ln">
+                Prezime
+                <input
+                  id="p-ln"
+                  className="profil__details-inp"
+                  value={dLn}
+                  onChange={(e) => setDLn(e.target.value)}
+                  minLength={2}
+                  required
+                />
+              </label>
+            </div>
+            <label className="profil__details-lab" htmlFor="p-fac">
+              Fakultet / ustanova
+              <input
+                id="p-fac"
+                className="profil__details-inp"
+                value={dFac}
+                onChange={(e) => setDFac(e.target.value)}
+                minLength={2}
+                required
+              />
+            </label>
+            <label className="profil__details-lab" htmlFor="p-addr">
+              Adresa
+              <input
+                id="p-addr"
+                className="profil__details-inp"
+                value={dAddr}
+                onChange={(e) => setDAddr(e.target.value)}
+                minLength={4}
+                required
+              />
+            </label>
+            <div className="profil__details-btns">
+              <button type="submit" className="profil__details-save">
+                Sačuvaj
+              </button>
+              <button
+                type="button"
+                className="profil__details-cancel"
+                onClick={() => {
+                  setEditing(false);
+                  if (acc) {
+                    setDFn(acc.firstName || "");
+                    setDLn(acc.lastName || "");
+                    setDFac(acc.faculty || "");
+                    setDAddr(acc.address || "");
+                  }
+                }}
+              >
+                Otkaži
+              </button>
+            </div>
+          </form>
+        ) : (
+          <ul className="profil__details-list">
+            <li>
+              <span className="profil__details-k">Ime</span>
+              <span className="profil__details-v">{(acc?.firstName || "").trim() || "—"}</span>
+            </li>
+            <li>
+              <span className="profil__details-k">Prezime</span>
+              <span className="profil__details-v">{(acc?.lastName || "").trim() || "—"}</span>
+            </li>
+            <li>
+              <span className="profil__details-k">Fakultet / ustanova</span>
+              <span className="profil__details-v">{(acc?.faculty || "").trim() || "—"}</span>
+            </li>
+            <li>
+              <span className="profil__details-k">Adresa</span>
+              <span className="profil__details-v">{(acc?.address || "").trim() || "—"}</span>
+            </li>
+            <li>
+              <span className="profil__details-k">Korisničko ime</span>
+              <span className="profil__details-v profil__details-v--mono">@{username || "—"}</span>
+            </li>
+          </ul>
+        )}
       </section>
 
       <div className="profil__avgbar" role="status" aria-label="Ukupan prosek">

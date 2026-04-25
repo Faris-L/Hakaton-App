@@ -60,9 +60,6 @@ class SimulationController extends Controller
         ]);
     }
 
-    /**
-     * Nastavak: poslednja poruka u nizu mora biti korisnička. Odgovor: JSON { reply, end_conversation }.
-     */
     public function conversationTurn(Request $request)
     {
         $request->validate([

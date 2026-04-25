@@ -24,8 +24,6 @@ $break: 720px;
   color: #f3f4f6;
 }
 
-/* --- Frame + board shell --- */
-
 .intro__frame {
   width: 100%;
   max-width: none;
@@ -56,7 +54,6 @@ $break: 720px;
     width: 100%;
   }
 }
-
 
 .board__hub {
   flex-shrink: 0;
@@ -154,8 +151,6 @@ $break: 720px;
     transform: translateY(-50%);
   }
 }
-
-
 
 .quad {
   --q-accent: #{$med-primary};
