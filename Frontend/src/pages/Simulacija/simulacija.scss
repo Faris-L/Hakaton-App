@@ -258,6 +258,37 @@ $sim-indigo: #6366f1;
   border-bottom: 1px solid #e5e7eb;
 }
 
+.sim-chat__status-right {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.sim-end-chat {
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #f59e0b;
+  color: #b45309;
+  background: #fffbeb;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background: #fef3c7;
+    border-color: #d97706;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 .sim-chat__timer {
   display: inline-flex;
   align-items: center;
@@ -506,6 +537,31 @@ $sim-indigo: #6366f1;
   color: #94a3b8;
 }
 
+.sim-hint--foot {
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.sim-hint__end {
+  font: inherit;
+  font-weight: 800;
+  color: #b45309;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+
+  &:hover:not(:disabled) {
+    color: #92400e;
+  }
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
 // ── Sidebar ──────────────────────────────────────────────
 .sim-panel {
   position: relative;
@@ -639,13 +695,26 @@ $sim-indigo: #6366f1;
   margin-bottom: 0.35rem;
 }
 
+.sim-panel__foot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+a.sim-next {
+  text-decoration: none;
+  text-align: center;
+}
+
 .sim-next {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
   width: 100%;
-  margin-top: 0.25rem;
+  box-sizing: border-box;
+  margin-top: 0;
   padding: 0.65rem 1rem;
   border: none;
   border-radius: 10px;
@@ -666,6 +735,24 @@ $sim-indigo: #6366f1;
   &:disabled {
     opacity: 0.45;
     cursor: not-allowed;
+  }
+}
+
+.sim-again {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 1rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #c7d2fe;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
   }
 }
 

@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'ai',
             'simulation/start',
+            'simulation/turn',
             'simulation/evaluate',
         ]);
     })
