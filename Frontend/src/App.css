@@ -12,6 +12,14 @@
   overflow: hidden;
 }
 
+/* Simulacija: skrol + vidljiv donji padding (inače overflow parenta seče) */
+.app-root:has(> .sim) {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;

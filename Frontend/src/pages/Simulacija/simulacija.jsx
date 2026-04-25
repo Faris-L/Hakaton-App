@@ -217,6 +217,8 @@ export default function Simulacija() {
       try {
         const data = await postJson("/simulation/start", { field, index });
         if (data.error) throw new Error(data.error);
+        const n = Number(data.index) || index;
+        setScenarioIndex(n);
         setScenarioText(data.assistant_message);
         setMessages((m) => [
           ...m,
@@ -224,7 +226,7 @@ export default function Simulacija() {
             role: "ai",
             text: data.assistant_message,
             label: "AI simulacija",
-            id: `ai-${index}-${Date.now()}`,
+            id: `ai-${n}-${Date.now()}`,
           },
         ]);
         setSecondsLeft((data.minutes || DEFAULT_MIN) * 60);
@@ -296,9 +298,8 @@ export default function Simulacija() {
       navigate("/home");
       return;
     }
-    const next = scenarioIndex + 1;
-    setScenarioIndex(next);
-    await loadScenario(next);
+    if (!feedback) return;
+    await loadScenario(scenarioIndex + 1);
   };
 
   const onAttach = () => fileRef.current?.click();

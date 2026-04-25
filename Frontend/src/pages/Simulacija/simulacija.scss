@@ -21,6 +21,8 @@ $sim-indigo: #6366f1;
 .sim {
   --sim-accent: #{$it-primary};
   --sim-primary-600: #4f46e5;
+  width: 100%;
+  max-width: 100%;
   min-height: 100%;
   background: $sim-bg;
   color: $sim-ink;
@@ -28,7 +30,10 @@ $sim-indigo: #6366f1;
   color-scheme: only light;
   display: flex;
   flex-direction: column;
-  padding-bottom: 2rem;
+  box-sizing: border-box;
+  // Prostor do dna (skrol na .app-root kada je ova ruta; vidi App.css)
+  padding: 0 0 max(2.75rem, calc(1.25rem + env(safe-area-inset-bottom, 0px)));
+  padding-top: 0;
 }
 
 .sim--medicine {
@@ -217,11 +222,13 @@ $sim-indigo: #6366f1;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 1.25rem;
+  padding: 0 1.25rem 0.5rem;
   display: grid;
   grid-template-columns: 1fr min(360px, 100%);
   gap: 1.25rem;
   align-items: start;
+  box-sizing: border-box;
+  margin-bottom: 0.5rem;
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
