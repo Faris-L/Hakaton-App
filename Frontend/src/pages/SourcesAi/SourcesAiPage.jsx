@@ -7,6 +7,19 @@ import "./sourcesAi.scss";
 const SYSTEM = `Odgovaraj isključivo na osnovu teksta koji korisnik daje ispod reči IZVORI. Ako u izvoru nema dovoljno podataka, napiši jednu rečenu: u tvom izvoru to nije pokriveno — i pokušaj reći šta fali. Nema izmišljanja. Srpski (latinica), jasno i kratko.`;
 const MAX_FILE_BYTES = 1_200_000;
 
+function downloadTextFile(filename, text) {
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 export default function SourcesAiPage() {
   const [source, setSource] = useState("");
   const [question, setQuestion] = useState("");
@@ -41,6 +54,38 @@ export default function SourcesAiPage() {
     r.onerror = () => setErr("Ne mogu pročitati fajl.");
     r.readAsText(f, "UTF-8");
   }, []);
+
+  const resetAll = useCallback(() => {
+    setSource("");
+    setQuestion("");
+    setAnswer("");
+    setErr(null);
+    setFileName(null);
+    if (fileRef.current) fileRef.current.value = "";
+  }, []);
+
+  const canReset =
+    Boolean(source.trim()) ||
+    Boolean(question.trim()) ||
+    Boolean(answer) ||
+    Boolean(fileName) ||
+    Boolean(err);
+
+  const saveAnswer = useCallback(() => {
+    const a = answer.trim();
+    if (!a) return;
+    const stamp = new Date().toISOString().slice(0, 19).replace("T", "-").replace(/:/g, "-");
+    const head = `Nexora — Izvori + AI
+Datum: ${new Date().toLocaleString("sr-Latn-RS", { timeZone: "Europe/Belgrade" })}
+
+=== Pitanje ===
+${question.trim()}
+
+=== Odgovor (AI) ===
+`;
+    downloadTextFile(`nexora-izvori-odgovor-${stamp}.txt`, `${head}${a}
+`);
+  }, [answer, question]);
 
   const ask = useCallback(async () => {
     const s = source.trim();
@@ -83,6 +128,17 @@ export default function SourcesAiPage() {
           <p className="sa__sub">
             Nalepi, učitaj fajl ili otkucaj sadržaj — model odgovara <strong>samo</strong> u okviru tog teksta.
           </p>
+          <div className="sa__header-row">
+            <button
+              type="button"
+              className="sa__ghost"
+              onClick={resetAll}
+              disabled={loading || !canReset}
+              title="Očisti izvor, pitanje i odgovor (počinješ ispočetka)"
+            >
+              Počni iznova
+            </button>
+          </div>
         </header>
         <main className="sa__main">
           <input
@@ -160,7 +216,17 @@ export default function SourcesAiPage() {
             <div className="sa__out" role="region" aria-label="Odgovor">
               <div className="sa__out-rail" aria-hidden />
               <div className="sa__out-inner">
-                <span className="sa__out-kicker">Odgovor</span>
+                <div className="sa__out-head">
+                  <span className="sa__out-kicker">Odgovor</span>
+                  <button
+                    type="button"
+                    className="sa__save"
+                    onClick={saveAnswer}
+                    title="Preuzmi odgovor kao .txt fajl"
+                  >
+                    Sačuvaj .txt
+                  </button>
+                </div>
                 {answer}
               </div>
             </div>

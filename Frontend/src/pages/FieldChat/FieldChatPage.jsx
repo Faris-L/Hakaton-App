@@ -22,6 +22,15 @@ export default function FieldChatPage() {
   );
   const endRef = useRef(null);
 
+  const resetChat = useCallback(() => {
+    setMessages([]);
+    setErr(null);
+    setInput("");
+  }, []);
+
+  const canReset =
+    messages.length > 0 || Boolean(err) || Boolean(input.trim());
+
   useEffect(() => {
     syncProfileFieldFromCurrentAccount();
     setField(getAccountField() || "it");
@@ -71,7 +80,15 @@ export default function FieldChatPage() {
               ← Početna
             </Link>
             <h1 className="fc__title">Chat</h1>
-            <div style={{ width: "3.5rem" }} aria-hidden />
+            <button
+              type="button"
+              className="fc__reset"
+              onClick={resetChat}
+              disabled={loading || !canReset}
+              title="Obriši celu prepisku i počni iznova"
+            >
+              Počni iznova
+            </button>
           </nav>
           <span className="fc__kicker">Smer fokus</span>
           <p className="fc__sub">
