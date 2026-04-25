@@ -286,7 +286,7 @@ const Home = () => {
 
       <section className="home__hero">
         <h1 className="home__hero-title">
-          Izaberi <span className="home__hero-gradient">način učenja</span>.
+          Uči pametnije – <span className="home__hero-gradient">ne više</span>
         </h1>
         <p className="home__hero-subtitle">
           Interaktivni alati koji ti pomažu da bolje razumeš, vežbaš i napreduješ.
