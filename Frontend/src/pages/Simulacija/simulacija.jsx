@@ -410,8 +410,9 @@ export default function Simulacija() {
         </div>
         <h1 className="sim-title">Jedan životni razgovor</h1>
         <p className="sim-sub">
-          Klijent pita, ti odgovaraš — kratko, 2–3 razmene, pa zahvala ili pritisak na „Završi
-          simulaciju”. Tada dolazi ocena.
+          Uloga klijenta (AI) je da vodi <strong>logičan, realan</strong> dijalog; kada mu odgovor
+          odgovara ili ne, može reći to i zatvoriti — ili ti pritisneš „Završi simulaciju”. Nema
+          fiksnog broja poruka. Zatim sledi ocena.
         </p>
       </div>
 
@@ -451,8 +452,9 @@ export default function Simulacija() {
           <div className="sim-chat__stream">
             {!started && (
               <p className="sim-placeholder">
-                Klikni <strong>„Kreni simulaciju”</strong> — klijent (AI) otvara kratku situaciju i
-                postavlja pitanje. Odgovarajući par puta zatvara priču; možeš i ti završiti kad god.
+                Klikni <strong>„Kreni simulaciju”</strong> — klijent (AI) otvara situaciju i
+                pitanje. Razgovor teče prirodno dok jedna strana ne odluči završetak, ili pritisak na
+                „Završi simulaciju”.
               </p>
             )}
 

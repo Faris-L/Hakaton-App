@@ -28,10 +28,11 @@ class SimulationController extends Controller
             return response()->json($this->mockStart());
         }
 
-        $system = 'Ti pripremaš JEDAN kratak otvor za edukativni razgovor. Oblast: '.$label.'. '
-            .'Igra uloge: kasniji razgovor je između studenta (savetnik/student) i klijenta/pacijenta (ti ćeš igrati klijenta u sledećim porukama). '
-            .'Sada generiši samo PRVU poruku u prvom licu kao klijent: 2 do 3 rečenice, realna situacija, i JEDNO jasno pitanje o problemu. '
-            .'Slovima srpski. Bez naslova, meta-komentara, bez brojeva "scenarij 1/10".';
+        $system = 'Ti pripremaš otvor za edukativni, realan razgovor. Oblast: '.$label.'. '
+            .'Kasnije: student daje smer/odgovor, ti (u narednim porukama) igraš klijenta, pacijenta ili korisnika uzevši u obzir ulogu oblasti. '
+            .'Ova prva poruka: u prvom licu, 2 do 3 rečenice, konzistentna, uverljiva situacija, jedno jasno pitanje. '
+            .'Izbegavaj nerealne skokove: ako pitaš o problemu, pitanje mora prirodno proizaći iz uvedene situacije. '
+            .'Jezik: srpski. Bez naslova, meta-komentara, bez reči „scenarij 1/10”.';
 
         $user = "Generiši samo taj otvor za oblast: {$label}.";
 
@@ -66,7 +67,7 @@ class SimulationController extends Controller
     {
         $request->validate([
             'field' => 'required|in:medicine,psychology,economy,it',
-            'user_turns' => 'required|integer|min:1|max:8',
+            'user_turns' => 'required|integer|min:1|max:10',
             'messages' => 'required|array|min:1',
             'messages.*.role' => 'required|in:assistant,user',
             'messages.*.content' => 'required|string|max:12000',
@@ -88,16 +89,20 @@ class SimulationController extends Controller
             return response()->json($this->mockTurn($userTurns));
         }
 
-        $forceEnd = $userTurns >= 2;
-        $system = "Uloga: igraš klijenta/pacijenta/korisnika (NE savetnika) u kratkom edukativnom ćasku. Oblast: {$label}.\n"
-            ."Pravila: najviše 2 rečenice po poruci. Cilj je kratak dijalog (ukupno 2–3 korisnička odgovora u celoj seansi).\n"
-            ."Korisnički odgovori do sada u ovom razgovoru: {$userTurns}.\n";
-        if ($forceEnd) {
-            $system .= "SADA MORAŠ završiti: zahvati korisniku, kratka završna rečenica, bez novih pitanja. Nema dodatnih pitanja.\n";
-        } else {
-            $system .= "Ako korisnički odgovor nije dovoljno jasan, postavi JEDNO kratko dodatno pitanje. Ako je odgovor dobar, možeš zahvaliti i završiti (bez pitanja).\n";
+        $system = "Uloga: igraš klijenta, pacijenta ili korisnika usluge (NE savetnika) u umereno kratkom, realnom dijalogu. Oblast: {$label}.\n\n"
+            ."Istorija poruka iznad: drži se konteksta; odgovori logičan nastavak (ne ignoriši šta je student rekao, ne skači u novu temu bez povezivanja).\n"
+            ."Dug razgovor nije obavezan: kad god ima smisla, možeš završiti — u prvom licu npr. da si zadovoljan/na smerom, da i dalje nisi, da ti je dovoljno za sada, ili zahvali. "
+            ."Cilj završetka: prirodan osećaj (zatvaranje uzevši u obzir realnost uloge), a ne fiksirani broj poruka.\n"
+            ."Ako završavaš, izbegavaj pitanja u istoj poruci. Ako ne završavaš, maks. jedno kratko pitanje ili jedan sledeći korak u 2 rečenice.\n"
+            ."Korisnički odgovori do sada (student): {$userTurns}.\n\n";
+
+        if ($userTurns >= 6) {
+            $system .= "Napomena: razgovor je već dugačak. U ovoj poruci potrudi se da bude jasan, realan kraj: izrazi zadovoljstvo, umereno nezadovoljstvo, ili hvala i odluku da staneš, osim ako student baš pita nešto što zahteva jednu kratku poslednju reč.\n\n";
         }
-        $system .= 'Odgovor ISKLJUČIVO kao JSON: {"reply":"tvoj tekst u prvom licu","end_conversation": true ili false}';
+
+        $system .= 'Izlaz ISKLJUČIVO JSON (bez markdown okvira): {"reply":"tvoj tekst u prvom licu","end_conversation": true ili false}';
+
+        $hardEnd = $userTurns >= 9;
 
         $apiMessages = [['role' => 'system', 'content' => $system]];
         foreach ($turnMessages as $m) {
@@ -130,7 +135,7 @@ class SimulationController extends Controller
             $reply = 'Hvala na pojašnjenju.';
         }
         $end = (bool) ($data['end_conversation'] ?? false);
-        if ($forceEnd) {
+        if ($hardEnd) {
             $end = true;
         }
 
@@ -174,8 +179,8 @@ class SimulationController extends Controller
         }
 
         $system = "Ti si iskusni edukator u oblasti: {$label}. "
-            .'Student vodi kratki dijalog u ulozi stručnjaka; druga strana je korisnik/AI u ulozi "klijenta". '
-            .'Oceni CELI prilog u razgovoru (kako student postavlja pitanja, daje smer, pokazuje razumevanje) skalom 0–10. '
+            .'Student vodi dijalog u ulozi stručnjaka; klijent može u jednom trenutku reći zadovoljstvo, nezadovoljstvo, zahvalu i zatvoriti — to je očekivano, ne greška. '
+            .'Oceni CELI prilog: logičan tok, povezivanje sa rečima klijenta, kvalitet smera i empatija, skalom 0–10. '
             .'Vrati ISKLJUČIVO valjan JSON (bez markdown) u obliku: '
             .'{"score": number, "summary": "kratka fraza na srpskom", '
             .'"good": ["stvar 1", "stvar 2"], "improve": ["sugestija 1", "sugestija 2"], '
@@ -246,16 +251,28 @@ class SimulationController extends Controller
 
     private function mockTurn(int $userTurns): array
     {
-        if ($userTurns >= 2) {
+        if ($userTurns >= 4) {
             return [
-                'assistant_message' => 'Hvala, ovo mi skoro pomaže. Srećno dalje!',
+                'assistant_message' => 'Hvala, sada imam dosta jasnoću. Još nisam skroz spokojan/na, ali ovo mogu prvo probati — sada bih stao/la s razgovorom.',
                 'end_conversation' => true,
+            ];
+        }
+        if ($userTurns === 1) {
+            return [
+                'assistant_message' => 'Razumem, to ima smisla. A gde to najviše osećaš u svom danu, da znam u čemu bih očekivao/la pomoć?',
+                'end_conversation' => false,
+            ];
+        }
+        if ($userTurns === 2) {
+            return [
+                'assistant_message' => 'Dobro, ovo pomaže. I dalje imam osećaj da mi nešto fali, ali smer mi je sada jasniji nego pre.',
+                'end_conversation' => false,
             ];
         }
 
         return [
-            'assistant_message' => 'Razumem. A jesi li to već pokušao/la u praksi na jedan konkretan način?',
-            'end_conversation' => false,
+            'assistant_message' => 'Hvala — sa ovim zasad mogu, zadovoljan/na sam. Ako bude trebalo, javiću se ponovo u drugu priliku.',
+            'end_conversation' => true,
         ];
     }
 
