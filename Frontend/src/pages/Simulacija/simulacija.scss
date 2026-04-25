@@ -445,6 +445,23 @@ $sim-indigo: #6366f1;
   }
 }
 
+.sim-linkbtn--listening {
+  color: #b91c1c !important;
+  background: color-mix(in srgb, var(--sim-accent) 12%, #fef2f2 88%) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--sim-accent) 25%, transparent);
+  animation: simMicPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes simMicPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
 .sim-linkbtn__ic {
   font-size: 0.9rem;
 }
