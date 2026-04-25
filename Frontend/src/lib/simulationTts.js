@@ -1,6 +1,6 @@
 /**
- * Web Speech Synthesis (glas čita klijentovu poruku u pregledaču).
- * Jezik: prvo srpski, zatim hrvatski/bosanski (bolji glasovi na Windows/Chrome) pre engleskog.
+ * Web Speech Synthesis (glas klijenta u pregledaču).
+ * Dozvoljeni su samo glasovi sa jezikom sr / hr / bs (BCP-47). Nema fallbacka na druge jezike.
  */
 
 export function isSpeechSynthesisAvailable() {
@@ -11,84 +11,71 @@ export function isSpeechSynthesisAvailable() {
   );
 }
 
+const UTTERANCE_LANG = "sr-RS";
+
 /**
- * Viši skor = bolji kandidat za naš srpski/latinični tekst.
- * Engleski glas sačuvamo samo ako nema smislenog alternativnog.
+ * @param {string} raw
+ * @returns {string}
  */
-function scoreVoiceForLocale(v) {
-  const name = (v.name || "").toLowerCase();
-  const lang = (v.lang || "").toLowerCase();
+function normalizeLangTag(raw) {
+  if (!raw) return "";
+  return String(raw).toLowerCase().replace(/_/g, "-");
+}
+
+/**
+ * Dozvoljeno: sr, sr-*, hr, hr-*, bs, bs-*
+ * (npr. sr-RS, hr-HR, bs-BA)
+ * @param {SpeechSynthesisVoice} v
+ * @returns {boolean}
+ */
+export function isAllowedBalkanTtsVoice(v) {
+  if (!v) return false;
+  const t = normalizeLangTag(v.lang || "");
+  if (!t) return false;
+  if (t === "sr" || t.startsWith("sr-")) return true;
+  if (t === "hr" || t.startsWith("hr-")) return true;
+  if (t === "bs" || t.startsWith("bs-")) return true;
+  return false;
+}
+
+/**
+ * @param {SpeechSynthesisVoice} v
+ * @returns {number}
+ */
+function rankAllowedVoice(v) {
+  if (!isAllowedBalkanTtsVoice(v)) return -1;
+  const t = normalizeLangTag(v.lang || "");
   let s = 0;
-
-  if (lang.startsWith("sr")) s += 120;
-  if (lang.startsWith("hr")) s += 88;
-  if (lang.startsWith("bs")) s += 86;
-  if (lang.startsWith("me-") || name.includes("montenegro")) s += 82;
-  if (lang.startsWith("sl") && (name.includes("slov") || /sl[-_]si/.test(lang))) s += 30;
-
-  if (/neural|natural|apremium|wavenet|enhanced|online/i.test(name)) s += 40;
-  if (name.includes("google") && (lang.startsWith("sr") || lang.startsWith("hr") || lang.startsWith("bs") || /срп|hrv|bos/i.test(name)))
-    s += 35;
-  if (name.includes("microsoft") && (lang.startsWith("sr") || lang.startsWith("hr") || lang.startsWith("bs") || /matej|zora|goran|davor/i.test(name)))
-    s += 32;
-
-  if (/(срп|srb|serbian|serb|srpski)/i.test(name) && !lang.startsWith("en")) s += 25;
-  if (/(croat|hrvatski|matej|zora|bosn|bosanski)/i.test(name)) s += 22;
-
-  if (lang.startsWith("en")) s -= 70;
-  if (lang.startsWith("de") || lang.startsWith("fr")) s -= 30;
-
-  if (v.default && s > -20) s += 3;
+  if (t === "sr" || t.startsWith("sr-")) s += 300;
+  else if (t === "hr" || t.startsWith("hr-")) s += 200;
+  else if (t === "bs" || t.startsWith("bs-")) s += 100;
+  const name = (v.name || "").toLowerCase();
+  if (/neural|natural|wavenet|enhanced|online/i.test(name)) s += 40;
+  if (name.includes("google") || name.includes("microsoft")) s += 15;
   if (v.localService === true) s += 5;
-
   return s;
 }
 
 /**
- * Jezik koji se šalje uz utterance — usklađen sa glasom da čitanje bude u doslednom jeziku.
- */
-function langForVoice(v) {
-  if (!v) return "sr-RS";
-  const l = (v.lang || "sr-RS").trim();
-  if (/^sr/i.test(l) || /^hr/i.test(l) || /^bs/i.test(l) || /^me/i.test(l)) return l;
-  if (/^b-in/i.test(l)) return l;
-  return l || "sr-RS";
-}
-
-/**
- * Dva najbolja pokušaja: sortirani svi, pa uzmimo prvi; ako nema, null.
+ * Prvi dozvoljeni glas po rangu, ili null.
  */
 export function getBestTtsVoice() {
   if (!isSpeechSynthesisAvailable()) return null;
   const all = window.speechSynthesis.getVoices();
   if (!all.length) return null;
 
-  const sorted = all
-    .filter((v) => v && (v.name || v.lang))
-    .sort((a, b) => scoreVoiceForLocale(b) - scoreVoiceForLocale(a));
+  const allowed = all
+    .filter((v) => v && (v.name || v.lang) && isAllowedBalkanTtsVoice(v))
+    .sort((a, b) => rankAllowedVoice(b) - rankAllowedVoice(a));
 
-  const first = sorted[0];
-  if (first) {
-    const s = scoreVoiceForLocale(first);
-    if (s > 5) return first;
-  }
+  return allowed[0] || null;
+}
 
-  const anySlavic = sorted.find(
-    (v) =>
-      scoreVoiceForLocale(v) > 0 ||
-      /^(sr|hr|bs|me|sl)/.test((v.lang || "").toLowerCase())
-  );
-  if (anySlavic) return anySlavic;
-
-  const notEnglish = sorted.filter((v) => {
-    const l = (v.lang || "").toLowerCase();
-    return l && !l.startsWith("en");
-  });
-  if (notEnglish.length) {
-    return notEnglish[0];
-  }
-
-  return first || all[0] || null;
+/**
+ * Ima li barem jedan podržan balkanski (sr/hr/bs) glas.
+ */
+export function hasSupportedBalkanTtsVoice() {
+  return getBestTtsVoice() != null;
 }
 
 /**
@@ -104,7 +91,7 @@ export function stopSimulationTts() {
 }
 
 /**
- * Pročitaj tekst; vraća funkciju za otkazivanje.
+ * Pročitaj tekst. Bez podržanog glasa (sr/hr/bs) ne priča — poziva onEnd odmah.
  * @param {string} text
  * @param {{ onStart?: () => void, onEnd?: () => void, rate?: number }} [opts]
  * @returns {() => void}
@@ -116,16 +103,17 @@ export function speakClientMessage(text, opts = {}) {
     return () => {};
   }
 
+  const voice = getBestTtsVoice();
+  if (!voice) {
+    onEnd?.();
+    return () => {};
+  }
+
   stopSimulationTts();
 
   const u = new SpeechSynthesisUtterance(text.trim());
-  const voice = getBestTtsVoice();
-  if (voice) {
-    u.voice = voice;
-    u.lang = langForVoice(voice);
-  } else {
-    u.lang = "sr-RS";
-  }
+  u.voice = voice;
+  u.lang = UTTERANCE_LANG;
 
   const baseRate = 0.88;
   u.rate = typeof rateOpt === "number" ? rateOpt : baseRate;
