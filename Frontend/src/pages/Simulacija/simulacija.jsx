@@ -4,6 +4,7 @@ import { postJson } from "../../api/client.js";
 import { recordAiScore, syncProfileFieldFromCurrentAccount } from "../../lib/nexoraSession.js";
 import {
   isSpeechSynthesisAvailable,
+  getBestTtsVoice,
   speakClientMessage,
   stopSimulationTts,
   onTtsVoicesReady,
@@ -108,6 +109,7 @@ export default function Simulacija() {
   const [ttsAutoplay, setTtsAutoplay] = useState(
     () => localStorage.getItem("simTtsAutoplay") !== "0"
   );
+  const [ttsVoiceLabel, setTtsVoiceLabel] = useState("");
   const fileRef = useRef(null);
   const speechRef = useRef(null);
   const ttsOk = isSpeechSynthesisAvailable();
@@ -136,7 +138,18 @@ export default function Simulacija() {
     setSpeakingId(null);
   }, []);
 
-  useEffect(() => onTtsVoicesReady(() => {}), []);
+  useEffect(
+    () =>
+      onTtsVoicesReady(() => {
+        const v = getBestTtsVoice();
+        setTtsVoiceLabel(
+          v
+            ? `${v.name} (${(v.lang || "").split("-")[0] || "?"})`
+            : ""
+        );
+      }),
+    []
+  );
 
   useEffect(() => {
     syncProfileFieldFromCurrentAccount();
@@ -479,19 +492,52 @@ export default function Simulacija() {
           </button>
         </div>
         {ttsOk ? (
-          <div className="sim-head__tts">
-            <label className="sim-tts">
+          <div
+            className={
+              "sim-head__tts" +
+              (ttsAutoplay ? " sim-head__tts--on" : " sim-head__tts--off")
+            }
+          >
+            <label
+              className={
+                "sim-tts" + (ttsAutoplay ? " sim-tts--on" : " sim-tts--off")
+              }
+            >
               <input
+                className="sim-tts__native"
                 type="checkbox"
                 checked={ttsAutoplay}
                 onChange={onToggleTtsAutoplay}
               />
-              <span>Automatski pusti glas klijenta (čitanje pitanja)</span>
+              <span className="sim-tts__ui" aria-hidden>
+                <span className="sim-tts__track">
+                  <span className="sim-tts__knob" />
+                  <span className="sim-tts__glow" />
+                </span>
+              </span>
+              <span className="sim-tts__text">
+                Automatski pusti glas klijenta
+              </span>
             </label>
+            {ttsVoiceLabel ? (
+              <p className="sim-head__tts-voice" title="Aktivni glas u pregledaču / sistemu">
+                <svg
+                  className="sim-head__tts-voice-ic"
+                  viewBox="0 0 24 24"
+                  width="14"
+                  height="14"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <path d="M3 9v6h4l5 4V5L7 9H3zm14.5 1.5A4.5 4.5 0 0 0 16 5v2a2.5 2.5 0 0 1 0 4v2a4.5 4.5 0 0 0-1-7z" />
+                </svg>{" "}
+                {ttsVoiceLabel}
+              </p>
+            ) : null}
             <p className="sim-head__tts-hint">
-              Na svakoj klijentovoj poruci: <strong>Pusti glas</strong> pročitava rečenice naglas. Tvoj
-              odgovor i dalje možeš <strong>snimiti glasom</strong> (mikrofon) — tada se glas
-              klijenta gasi.
+              Na klijentovoj poruci: <strong>Pusti glas</strong> čita rečenice. Tvoj odgovor možeš
+              <strong> snimiti glasom</strong> (mikrofon) — tada se TTS gasi. Ako zvuči loše, u
+              Windows podešavanjima dodaj <strong>jezičke pakete</strong> (srpski / hrvatski).
             </p>
           </div>
         ) : null}
