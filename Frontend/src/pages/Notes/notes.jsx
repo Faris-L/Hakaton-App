@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import {
   getAccountField,
@@ -171,6 +171,17 @@ function NoteEditorView() {
   const [aiBusy, setAiBusy] = useState(false);
   const [err, setErr] = useState(null);
   const [loadErr, setLoadErr] = useState(null);
+  const [justSaved, setJustSaved] = useState(false);
+  const saveBtnRef = useRef(null);
+  const justSavedTimerRef = useRef(0);
+
+  useEffect(() => {
+    return () => {
+      if (justSavedTimerRef.current) {
+        window.clearTimeout(justSavedTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     syncProfileFieldFromCurrentAccount();
@@ -220,6 +231,7 @@ function NoteEditorView() {
   const handleSave = async () => {
     setSaving(true);
     setErr(null);
+    setJustSaved(false);
     const body = {
       title: (title || "").trim() || "Bez naslova",
       content: content || "",
@@ -229,15 +241,26 @@ function NoteEditorView() {
       if (isNew) {
         const n = await createNote(body);
         if (n?.id) {
-          navigate(`/notes/${n.id}`, { replace: true });
+          navigate("/notes", { replace: true });
+        } else {
+          setErr("Odgovor servera nema ID beleške.");
         }
       } else {
         await updateNote(idNum, body);
+        setJustSaved(true);
+        if (justSavedTimerRef.current) {
+          window.clearTimeout(justSavedTimerRef.current);
+        }
+        justSavedTimerRef.current = window.setTimeout(() => {
+          setJustSaved(false);
+          justSavedTimerRef.current = 0;
+        }, 2500);
       }
     } catch (e) {
       setErr(e?.message || "Čuvanje nije uspelo.");
     } finally {
       setSaving(false);
+      saveBtnRef.current?.blur();
     }
   };
 
@@ -375,14 +398,22 @@ function NoteEditorView() {
             >
               {aiBusy ? "…" : "Pomozi mi da napišem"}
             </button>
-            <button
-              type="button"
-              className="notes-editor__save"
-              onClick={handleSave}
-              disabled={saving}
-            >
-              {saving ? "Čuvam…" : "Sačuvaj"}
-            </button>
+            <span className="notes-editor__save-wrap">
+              <button
+                type="button"
+                ref={saveBtnRef}
+                className="notes-editor__save"
+                onClick={handleSave}
+                disabled={saving}
+              >
+                {saving ? "Čuvam…" : "Sačuvaj"}
+              </button>
+              {!isNew && justSaved && !saving ? (
+                <span className="notes-editor__saved" role="status">
+                  Sačuvano
+                </span>
+              ) : null}
+            </span>
             <button
               type="button"
               className="notes-editor__delete"

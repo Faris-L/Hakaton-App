@@ -318,6 +318,21 @@
   background: #0f172a;
 }
 
+.lecture-player__media--yt {
+  max-height: min(56vh, 80vw);
+  min-height: 200px;
+  aspect-ratio: 16 / 9;
+  display: block;
+  border: 0;
+}
+
+.lecture-player__yt-hint {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0.35rem 0 0;
+  line-height: 1.4;
+}
+
 .lecture-player__audio {
   width: 100%;
 }

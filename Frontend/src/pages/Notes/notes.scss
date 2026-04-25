@@ -545,6 +545,20 @@
   gap: 0.65rem;
 }
 
+.notes-editor__save-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.notes-editor__saved {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #15803d;
+  white-space: nowrap;
+}
+
 .notes-editor__ai {
   font: inherit;
   font-size: 0.8rem;
@@ -588,6 +602,15 @@
   &:hover:not(:disabled) {
     filter: brightness(1.06);
     transform: translateY(-1px);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
   }
 }
 

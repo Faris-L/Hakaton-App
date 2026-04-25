@@ -191,12 +191,12 @@ export default function LectureEditor() {
         </label>
       ) : (
         <label className="lec-field">
-          <span className="lec-field__l">URL video fajla</span>
+          <span className="lec-field__l">URL videa (YouTube ili direktan .mp4 / .webm)</span>
           <input
             className="lec-input"
             value={videoUrl}
             onChange={(e) => setVideoUrl(e.target.value)}
-            placeholder="https://... .mp4 / .webm"
+            placeholder="https://www.youtube.com/watch?v=… ili https://…/file.mp4"
           />
         </label>
       )}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getLecturePlayUrl, postLectureSummarize } from "../../api/lecturesApi.js";
+import { getYoutubeEmbedUrl } from "../../lib/youtubeEmbed.js";
 
 export default function LecturePlayer({ lecture, open, onClose }) {
   const mediaRef = useRef(null);
@@ -10,23 +11,25 @@ export default function LecturePlayer({ lecture, open, onClose }) {
 
   const url = lecture ? getLecturePlayUrl(lecture) : null;
   const isVideo = lecture?.type === "video";
+  const youtubeEmbed = isVideo && url ? getYoutubeEmbedUrl(url) : null;
+  const useYoutubeIframe = Boolean(youtubeEmbed);
 
   useEffect(() => {
     setSummary("");
     setSummaryErr(null);
     setPlaying(false);
     const el = mediaRef.current;
-    if (!el || !open) return;
+    if (!el || !open || useYoutubeIframe) return;
     el.pause();
     el.currentTime = 0;
     if ("load" in el && typeof el.load === "function") {
       el.load();
     }
-  }, [lecture?.id, open, url]);
+  }, [lecture?.id, open, url, useYoutubeIframe]);
 
   useEffect(() => {
     const el = mediaRef.current;
-    if (!el) return;
+    if (!el || useYoutubeIframe) return;
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
     const onEnded = () => setPlaying(false);
@@ -38,7 +41,7 @@ export default function LecturePlayer({ lecture, open, onClose }) {
       el.removeEventListener("pause", onPause);
       el.removeEventListener("ended", onEnded);
     };
-  }, [lecture?.id, isVideo, open]);
+  }, [lecture?.id, isVideo, open, useYoutubeIframe]);
 
   const togglePlay = useCallback(() => {
     const el = mediaRef.current;
@@ -109,7 +112,19 @@ export default function LecturePlayer({ lecture, open, onClose }) {
         </div>
 
         {url ? (
-          isVideo ? (
+          !isVideo ? (
+            <audio ref={mediaRef} className="lecture-player__audio" src={url} controls />
+          ) : useYoutubeIframe ? (
+            <iframe
+              key={`${lecture.id}-${youtubeEmbed}`}
+              className="lecture-player__media lecture-player__media--yt"
+              title={lecture.title || "YouTube video"}
+              src={`${youtubeEmbed}${youtubeEmbed.includes("?") ? "&" : "?"}rel=0`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+              allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          ) : (
             <video
               ref={mediaRef}
               className="lecture-player__media"
@@ -117,19 +132,23 @@ export default function LecturePlayer({ lecture, open, onClose }) {
               playsInline
               controls
             />
-          ) : (
-            <audio ref={mediaRef} className="lecture-player__audio" src={url} controls />
           )
         ) : (
           <p className="lecture-player__no-url">Nema URL medija za ovo predavanje.</p>
         )}
+
+        {useYoutubeIframe ? (
+          <p className="lecture-player__yt-hint">
+            YouTube: pusti / pauziraj pomoću ugrađenog plejera.
+          </p>
+        ) : null}
 
         <div className="lecture-player__controls">
           <button
             type="button"
             className="lecture-player__btn lecture-player__btn--primary"
             onClick={togglePlay}
-            disabled={!url}
+            disabled={!url || useYoutubeIframe}
           >
             {playing ? "Pauziraj" : "Pusti"}
           </button>
@@ -137,7 +156,7 @@ export default function LecturePlayer({ lecture, open, onClose }) {
             type="button"
             className="lecture-player__btn"
             onClick={restart}
-            disabled={!url}
+            disabled={!url || useYoutubeIframe}
           >
             Od početka
           </button>
