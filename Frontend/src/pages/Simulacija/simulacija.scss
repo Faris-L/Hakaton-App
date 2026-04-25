@@ -189,6 +189,41 @@ $sim-indigo: #6366f1;
   }
 }
 
+.sim-head__tts {
+  width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 0.55rem 0.7rem 0.6rem;
+  border-radius: 10px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  box-sizing: border-box;
+}
+
+.sim-tts {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #14532d;
+  cursor: pointer;
+  user-select: none;
+
+  input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: #16a34a;
+  }
+}
+
+.sim-head__tts-hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #3f6212;
+  max-width: 60ch;
+}
+
 .sim-title {
   margin: 0 0 0.35rem;
   font-size: clamp(1.25rem, 2.5vw, 1.6rem);
@@ -393,6 +428,50 @@ $sim-indigo: #6366f1;
   background: color-mix(in srgb, var(--sim-accent) 12%, #f8fafc 88%);
   border: 1px solid color-mix(in srgb, var(--sim-accent) 20%, #e2e8f0 80%);
   color: $sim-ink;
+}
+
+.sim-msg__voice {
+  display: flex;
+  align-items: center;
+  margin-top: 0.55rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.sim-msg__tts {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.5rem 0.3rem 0.4rem;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: $sim-indigo;
+  background: #fff;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+
+  &:hover:not(:disabled) {
+    background: #eef2ff;
+    border-color: #a5b4fc;
+  }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.sim-msg__tts--active {
+  color: #b45309;
+  border-color: #fbbf24;
+  background: #fffbeb;
+}
+
+.sim-msg__tts-ic {
+  flex-shrink: 0;
+  opacity: 0.9;
 }
 
 .sim-msg__foot {
