@@ -244,6 +244,23 @@ export default function FlashcardEditor() {
 
       {err ? <p className="fc-err">{err}</p> : null}
 
+      <div className="fc-editor__blurb" role="region" aria-label="Uputstvo za uređivač">
+        <p className="fc-editor__blurb-p">
+          <strong>Flash kartica</strong> = par „pitanje / termin” (levo) i „odgovor / značenje” (desno). Set
+          se veže za <strong>tvoj smer</strong> s uvoda. Kada sačuvaš, na listi setova klikni{" "}
+          <strong>Vežbaj</strong> da prođeš kroz kartice.
+        </p>
+        <ul className="fc-editor__blurb-ul">
+          <li>
+            Možeš ručno uneti redove ispod, ili otvoriti <strong>Generiši kartice</strong> — AI predloži
+            tekst, ti proveriš i dodaš šta treba, pa <strong>Sačuvaj set</strong>.
+          </li>
+          <li>
+            Samo redovi gde su i pitanje i odgovor popunjeni idu u set pri čuvanju.
+          </li>
+        </ul>
+      </div>
+
       <div className="fc-editor__form">
         <label className="fc-field">
           <span className="fc-field__l">Naslov</span>
@@ -254,7 +271,10 @@ export default function FlashcardEditor() {
             placeholder={getInputPlaceholder(field, "flashTitle")}
           />
         </label>
-        <p className="fc-field-hint">Predmet je uvek smer s uvoda — nije odvojen izbor ovde.</p>
+        <p className="fc-field-hint">
+          Predmet nije odvojen izbor: uvek je <strong>smer koji si izabrao/la na uvodu</strong> (isti kao na
+          početnoj strani).
+        </p>
         <label className="fc-field">
           <span className="fc-field__l">Opis (opciono)</span>
           <textarea
@@ -262,12 +282,16 @@ export default function FlashcardEditor() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
-            placeholder="Kratka napomena o setu"
+            placeholder="Npr. za ispit u junu, ponavljanje 4. modula…"
           />
         </label>
       </div>
 
-      <h3 className="fc-editor__h3">Kartice</h3>
+      <h3 className="fc-editor__h3">Kartice (pitanje → odgovor)</h3>
+      <p className="fc-editor__cards-lead">
+        Svaki red = jedna kartica. Levo napiši šta želiš da pitaš (ili šta gledaš), desno rešenje. Težina
+        pomaže tebi u pregledu; nije obavezna za čuvanje.
+      </p>
       <div className="fc-card-rows">
         {cards.map((row) => (
           <div key={row._key} className="fc-card-row">
@@ -345,7 +369,12 @@ export default function FlashcardEditor() {
         >
           <div className="fc-modal">
             <h3 className="fc-modal__h">Generiši kartice (AI)</h3>
-            <p className="fc-modal__p">Unesi temu i broj; kartice doda u editor (nije automatska beleška).</p>
+            <p className="fc-modal__p">
+              Upiši <strong>šta učiš</strong> (temu ili oblast) i koliko parova želiš. Model predloži
+              pitanja i kratke odgovore na srpskom i <strong>ubaci ih u tabelu ispod</strong> — obavezno
+              proveri tekst, pa klikni <strong>Sačuvaj set</strong>. Ovo nije zasebna beleška niti drugi
+              alat, samo pomoć pri pravljenju kartica.
+            </p>
             {genErr ? <p className="fc-err">{genErr}</p> : null}
             <label className="fc-field">
               <span className="fc-field__l">Tema</span>

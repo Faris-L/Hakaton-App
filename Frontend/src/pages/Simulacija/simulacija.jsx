@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { postJson } from "../../api/client.js";
 import {
@@ -111,7 +111,14 @@ export default function Simulacija() {
   );
   const fileRef = useRef(null);
   const speechRef = useRef(null);
+  const chatStreamRef = useRef(null);
   const ttsUsable = true;
+
+  useLayoutEffect(() => {
+    const el = chatStreamRef.current;
+    if (!el || messages.length === 0) return;
+    el.scrollTop = el.scrollHeight;
+  }, [messages]);
 
   const fieldName = FIELD_NAMES[field] || "Informatika";
   const hasUserMessage = messages.some((m) => m.role === "user");
@@ -548,7 +555,7 @@ export default function Simulacija() {
             </div>
           </div>
 
-          <div className="sim-chat__stream">
+          <div className="sim-chat__stream" ref={chatStreamRef}>
             {!started && (
               <p className="sim-placeholder">
                 Klikni <strong>„Kreni simulaciju”</strong> — klijent (AI) otvara situaciju i

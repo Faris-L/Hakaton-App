@@ -28,6 +28,11 @@ export default function FlashcardSetCard({ set, rot }) {
           {set.description || "Bez opisa"}{" "}
           <span className="fc-set__meta">· {set.cards_count ?? 0} kartica</span>
         </p>
+        <p className="fc-set__tip">
+          {set.cards_count
+            ? "Klikni bilo gde na kartici ili „Vežbaj” da kreneš ponavljanje. „Uredi” menja pitanja."
+            : "Još nema kartica — klikni „Uredi” i dodaj pitanja i odgovore."}
+        </p>
         <div className="fc-set__row" onClick={(e) => e.stopPropagation()}>
           <button
             type="button"

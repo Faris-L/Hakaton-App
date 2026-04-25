@@ -65,8 +65,27 @@ function FlashcardListView() {
       <div className="fc-page__intro">
         <h1 className="fc-page__h1">Flash cards</h1>
         <p className="fc-page__sub">
-          Uči pojmove kroz brze kartice i proveri koliko znaš.
+          Praviš <strong>set kartica</strong> za svoj smer (kao hemijske kartice): na prednjoj strani je{" "}
+          <strong>pitanje ili pojam</strong>, na drugoj <strong>odgovor ili objašnjenje</strong>. Posle
+          možeš da <strong>vežbaš</strong> — aplikacija ti prikazuje kartice jednu po jednu i pita da li si
+          znao, da bi brzo ponavljao gradivo.
         </p>
+        <div className="fc-page__how" role="region" aria-label="Kako koristiti flash kartice">
+          <p className="fc-page__how-title">Šta da uradiš</p>
+          <ol className="fc-page__how-list">
+            <li>
+              Klikni <strong>+ Novi set</strong> i upiši naslov (npr. „Makroekonomija — ispit 1”).
+            </li>
+            <li>
+              Dodaj kartice: u prvo polje <strong>pitanje</strong>, u drugo <strong>odgovor</strong> (ili
+              koristi <strong>Generiši kartice</strong> da AI napravi nacrt).
+            </li>
+            <li>
+              Sačuvaj set, vrati se ovde i na kartici seta klikni <strong>Vežbaj</strong> — okreći karticu
+              i označi da li si znao.
+            </li>
+          </ol>
+        </div>
         <div className="fc-page__tool">
           <button
             type="button"
@@ -84,7 +103,8 @@ function FlashcardListView() {
           <p className="fc-muted">Učitavanje…</p>
         ) : sets.length === 0 ? (
           <p className="fc-empty">
-            Još nema setova. Klik na „+ Novi set” ili poveži backend.
+            Još nema setova. Klikni <strong>+ Novi set</strong> gore, dodaj par pitanje–odgovor kartica i
+            sačuvaj — zatim će se set pojaviti ovde i moći ćeš da ga otvoriš za vežbu.
           </p>
         ) : (
           <div className="fc-page__grid">
@@ -121,7 +141,7 @@ export default function FlashcardsPage() {
       <div className="fc-wrap__bg" aria-hidden="true" />
       <div className="fc-page">
         <Routes>
-          <Route path="/" element={<FlashcardListView />} />
+          <Route index element={<FlashcardListView />} />
           <Route path="new" element={<FlashcardEditor />} />
           <Route path=":setId/edit" element={<FlashcardEditor />} />
           <Route path=":setId/practice" element={<FlashcardPractice />} />
