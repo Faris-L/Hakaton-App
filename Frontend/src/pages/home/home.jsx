@@ -186,10 +186,10 @@ const Home = () => {
         <div className="home__progress-bars">
           {[
             { label: "Simulacija scenarija", pct: 78, color: "#f06292" },
-            { label: "Beleške",              pct: 65, color: "#3b82f6" },
+           { label: "Beleške",              pct: 65, color: "#3b82f6" },
             { label: "Predavanja",           pct: 90, color: "#8b5cf6" },
             { label: "Flash cards",          pct: 55, color: "#22c55e" },
-          ].map((item) => (
+         ].map((item) => (
             <div key={item.label} className="home__progress-row">
               <span className="home__progress-label">{item.label}</span>
               <div className="home__progress-bar">

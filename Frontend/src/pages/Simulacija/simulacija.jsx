@@ -35,6 +35,12 @@ function formatTime(secs) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+/** @returns {typeof window.webkitSpeechRecognition | null} */
+function getSpeechRecognitionCtor() {
+  if (typeof window === "undefined") return null;
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
 function FieldBadgeIcon({ field }) {
   const c = { className: "sim-badge__ic", "aria-hidden": true, width: 20, height: 20 };
   switch (field) {
@@ -75,7 +81,7 @@ function FieldBadgeIcon({ field }) {
 
 export default function Simulacija() {
   const navigate = useNavigate();
-  const [field, setField] = useState(getField);
+  const [field] = useState(getField);
   const [started, setStarted] = useState(false);
   const [scenarioIndex, setScenarioIndex] = useState(1);
   const [scenarioText, setScenarioText] = useState("");
@@ -85,13 +91,11 @@ export default function Simulacija() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [secondsLeft, setSecondsLeft] = useState(DEFAULT_MIN * 60);
+  const [voiceListening, setVoiceListening] = useState(false);
   const fileRef = useRef(null);
+  const speechRef = useRef(null);
 
   const fieldName = FIELD_NAMES[field] || "Informatika";
-
-  useEffect(() => {
-    setField(getField());
-  }, []);
 
   useEffect(() => {
     const t = THEME_BODY[field] || THEME_BODY.it;
@@ -110,8 +114,104 @@ export default function Simulacija() {
     return () => clearInterval(id);
   }, [started, feedback]);
 
+  const stopVoice = useCallback(() => {
+    const r = speechRef.current;
+    if (r) {
+      try {
+        r.onresult = null;
+        r.onerror = null;
+        r.onend = null;
+        r.stop();
+      } catch {
+        /* ignore */
+      }
+      speechRef.current = null;
+    }
+    setVoiceListening(false);
+  }, []);
+
+  const onVoice = useCallback(() => {
+    if (feedback || !started) return;
+
+    if (voiceListening) {
+      stopVoice();
+      return;
+    }
+
+    const Ctor = getSpeechRecognitionCtor();
+    if (!Ctor) {
+      setError(
+        "Glas u tekst trenutno radi u Chrome, Edge i Safari (macOS). " +
+          "Nema podrške u Firefoxu u ovom režimu — napiši odgovor u polje."
+      );
+      return;
+    }
+
+    setError("");
+    const rec = new Ctor();
+    rec.lang = "sr-RS";
+    rec.continuous = true;
+    rec.interimResults = true;
+
+    rec.onresult = (event) => {
+      let chunk = "";
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        if (event.results[i].isFinal) {
+          chunk += event.results[i][0].transcript;
+        }
+      }
+      if (chunk) {
+        setInput((prev) => {
+          const t = (prev + (prev && !prev.endsWith(" ") ? " " : "") + chunk).trim();
+          return t;
+        });
+      }
+    };
+
+    rec.onerror = (e) => {
+      if (e.error === "aborted" || e.error === "not-allowed") {
+        setError(
+          e.error === "not-allowed"
+            ? "Dozvoli pristup mikrofonu u pregledaču da bi prepoznavanje rada."
+            : ""
+        );
+      } else {
+        setError(e.message || "Greška pri snimanju glasa. Pokušaj ponovo.");
+      }
+      setVoiceListening(false);
+      speechRef.current = null;
+    };
+
+    rec.onend = () => {
+      setVoiceListening(false);
+      speechRef.current = null;
+    };
+
+    try {
+      rec.start();
+      speechRef.current = rec;
+      setVoiceListening(true);
+    } catch (e) {
+      setError(e?.message || "Nije moguće pokrenuti glas. Pokušaj ponovo.");
+    }
+  }, [feedback, started, voiceListening, stopVoice]);
+
+  useEffect(() => {
+    return () => {
+      if (speechRef.current) {
+        try {
+          speechRef.current.stop();
+        } catch {
+          /* ignore */
+        }
+        speechRef.current = null;
+      }
+    };
+  }, []);
+
   const loadScenario = useCallback(
     async (index) => {
+      stopVoice();
       setError("");
       setLoading(true);
       try {
@@ -137,7 +237,7 @@ export default function Simulacija() {
         setLoading(false);
       }
     },
-    [field]
+    [field, stopVoice]
   );
 
   const onKreni = () => {
@@ -150,6 +250,7 @@ export default function Simulacija() {
   const onSend = async () => {
     const t = input.trim();
     if (!t || !scenarioText || feedback || loading) return;
+    stopVoice();
     setError("");
     setLoading(true);
     const timeStr = new Date().toLocaleTimeString("sr-RS", {
@@ -203,10 +304,6 @@ export default function Simulacija() {
   const onAttach = () => fileRef.current?.click();
   const onFile = () => {
     setError("Prilog će uskoro biti povezan sa bekapom. Za sada koristi tekst.");
-  };
-
-  const onVoice = () => {
-    setError("Glasovni snimak uskoro. Za sada napiši odgovor u polju ispod.");
   };
 
   return (
@@ -364,13 +461,21 @@ export default function Simulacija() {
                 </span>
                 Priloži fajl
               </button>
-              <button type="button" className="sim-linkbtn" onClick={onVoice} disabled={!started || Boolean(feedback)}>
+              <button
+                type="button"
+                className={
+                  `sim-linkbtn` + (voiceListening ? " sim-linkbtn--listening" : "")
+                }
+                onClick={onVoice}
+                disabled={!started || Boolean(feedback)}
+                aria-pressed={voiceListening}
+              >
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
                   <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z" />
                   <path d="M19 10v1a7 7 0 0 1-14 0v-1" fill="none" stroke="currentColor" strokeWidth="1.3" />
                   <path d="M12 19v2" fill="none" stroke="currentColor" strokeWidth="1.3" />
                 </svg>
-                Snimi glasovni odgovor
+                {voiceListening ? "Zaustavi snimanje" : "Snimi glasovni odgovor"}
               </button>
               <button
                 type="button"
@@ -385,7 +490,8 @@ export default function Simulacija() {
               </button>
             </div>
             <p className="sim-hint">
-              Možeš pisati, snimati glas ili poslati video odgovor.
+              Glas se pretvara u tekst (Chrome/Edge). Klikni ponovo da zaustaviš. Ili
+              napiši odgovor u polje.
             </p>
           </div>
         </div>
