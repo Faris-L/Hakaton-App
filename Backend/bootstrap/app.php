@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->validateCsrfTokens(except: [
             'ai',
+            'simulation/start',
+            'simulation/evaluate',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
