@@ -8,6 +8,15 @@ export function userHeader() {
 }
 
 /**
+ * Generički AI chat (Laravel /ai). Opciono system uputstvo.
+ * @param {{ message: string, system?: string }} body
+ * @returns {Promise<{ reply: string }>}
+ */
+export async function postAiAsk(body) {
+  return postJson("/ai", body);
+}
+
+/**
  * @param {string} path
  * @param {Record<string, unknown>} [body]
  */

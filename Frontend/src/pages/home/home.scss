@@ -22,7 +22,8 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
+  /* vidljiv hover / scale na karticama, ne reži vodoravno */
+  overflow-x: visible;
   overflow-y: auto;
 }
 
@@ -161,6 +162,7 @@
   padding: 1.75rem 2rem 2.5rem;
   gap: 1.75rem;
   min-height: 0;
+  overflow-x: visible;
 }
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
@@ -194,29 +196,176 @@
   line-height: 1.6;
 }
 
-// ── Grid ──────────────────────────────────────────────────────────────────────
+// ── Karusel: strelice, viewport, clip, trak (translateX)
 
-.home__grid {
+$carousel-gap: 20px;
+// Desktop: 4*card + 3*gap < unutrašnja širina clipa; maks. strip ≈ 4*270 + 3*20
+$carousel-desktop-row-max: calc(4 * 270px + 3 * #{$carousel-gap});
+
+.home__features {
+  width: 100%;
+  align-self: center;
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+  overflow: visible;
+}
+
+.home__features__inner {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 max(1rem, 1.5rem);
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+@media (min-width: 1024px) {
+  .home__features__inner {
+    padding: 0 2rem;
+  }
+}
+
+.home__carousel {
   display: flex;
   flex-direction: row;
-  gap: 1.25rem;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   width: 100%;
-  max-width: 1060px;
+  min-width: 0;
+  box-sizing: border-box;
+}
 
-  &:has(.home-card:hover) .home-card:not(:hover) {
-    transform: scale(0.93) rotate(var(--rot, 0deg)) translateY(6px);
-    opacity: 0.55;
+@media (min-width: 480px) {
+  .home__carousel {
+    gap: 0.75rem;
   }
+}
 
-  @media (max-width: 720px) {
-    flex-direction: column;
+@media (min-width: 1024px) {
+  .home__carousel {
     gap: 1rem;
-
-    &:has(.home-card:hover) .home-card:not(:hover) {
-      transform: scale(0.97);
-      opacity: 0.65;
-    }
   }
+}
+
+/* Stilizovane strelice: Nexora violet + teal akcenat, plutajući taster */
+.home__carousel__btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1.5px solid rgba(124, 58, 237, 0.22);
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffffff 0%, #f8f7ff 100%);
+  color: #5b21b6;
+  cursor: pointer;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 14px rgba(124, 58, 237, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition:
+    color 0.2s,
+    background 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
+  -webkit-tap-highlight-color: transparent;
+
+  @media (min-width: 1024px) {
+    width: 3.1rem;
+    height: 3.1rem;
+  }
+
+  &:hover:not(:disabled) {
+    color: #6d28d9;
+    border-color: rgba(0, 229, 196, 0.45);
+    background: linear-gradient(180deg, #ffffff 0%, #f3f0ff 100%);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.05),
+      0 6px 22px rgba(124, 58, 237, 0.2),
+      0 0 0 1px rgba(124, 58, 237, 0.08);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 3px rgba(255, 255, 255, 0.9),
+      0 0 0 5px rgba(124, 58, 237, 0.45);
+  }
+
+  &:disabled {
+    opacity: 0.28;
+    cursor: not-allowed;
+    color: #94a3b8;
+    border-color: rgba(148, 163, 184, 0.35);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+}
+
+/* Rež: horizontalno, padding da hover/scale ne diraju ivice */
+.home__carousel__viewport {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 1.5rem 0.5rem 2rem;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+
+  @media (min-width: 1024px) {
+    padding: 1.75rem 0.5rem 2.25rem;
+  }
+}
+
+.home__carousel__clip {
+  overflow: visible;
+  min-width: 0;
+  width: 100%;
+  /* cqi = unutrašnja širina (bez paddinga view‑porta) */
+  container-type: inline-size;
+  container-name: home-carousel;
+  margin-inline: auto;
+}
+
+@media (min-width: 1024px) {
+  .home__carousel__clip {
+    max-width: min(100%, #{$carousel-desktop-row-max});
+  }
+}
+
+/* --n: broj celih vidljivih kartica (1 / 2 / 4) iz React-a */
+.home__features__row--track {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: $carousel-gap;
+  width: max-content;
+  will-change: transform;
+  backface-visibility: hidden;
+  box-sizing: border-box;
+  transition: transform 0.38s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.home__carousel__viewport:has(.home-card:hover) .home-card:not(:hover) {
+  transform: scale(0.99) rotate(var(--rot, 0deg));
+  opacity: 0.7;
 }
 
 // ── Card color tokens ─────────────────────────────────────────────────────────
@@ -245,6 +394,30 @@
   --card-accent:    #22c55e;
   --card-glow:      rgba(34, 197, 94, 0.28);
 }
+.home-card--planner {
+  --card-surface:   #fff7ed;
+  --card-visual-bg: #ffedd5;
+  --card-accent:    #ea580c;
+  --card-glow:      rgba(234, 88, 12, 0.28);
+}
+.home-card--fieldchat {
+  --card-surface:   #f0f9ff;
+  --card-visual-bg: #e0f2fe;
+  --card-accent:    #0284c7;
+  --card-glow:      rgba(2, 132, 199, 0.28);
+}
+.home-card--aiquiz {
+  --card-surface:   #fffbeb;
+  --card-visual-bg: #fef3c7;
+  --card-accent:    #d97706;
+  --card-glow:      rgba(217, 119, 6, 0.28);
+}
+.home-card--sources {
+  --card-surface:   #f5f3ff;
+  --card-visual-bg: #ede9fe;
+  --card-accent:    #6d28d9;
+  --card-glow:      rgba(109, 40, 217, 0.28);
+}
 
 // ── Card ──────────────────────────────────────────────────────────────────────
 
@@ -270,7 +443,9 @@ a.home-card--link {
     0 24px 48px var(--card-glow);
   overflow: hidden;
   cursor: pointer;
-  transform: rotate(var(--rot, 0deg));
+  transform: rotate(var(--rot, 0deg)) translateZ(0);
+  animation: homeCardRise 0.65s ease-out backwards;
+
   transition:
     transform 0.42s cubic-bezier(0.23, 1, 0.32, 1),
     opacity   0.32s ease,
@@ -293,15 +468,81 @@ a.home-card--link {
   }
 
   &:hover {
-    transform: scale(1.07) rotate(0deg) translateY(-14px);
+    transform: scale(1.05) rotate(0deg) translateY(-6px);
     box-shadow:
       0 2px 0   rgba(0, 0, 0, 0.10),
       0 4px 0   rgba(0, 0, 0, 0.07),
       0 6px 0   rgba(0, 0, 0, 0.04),
       0 20px 50px rgba(0, 0, 0, 0.12),
-      0 36px 72px var(--card-glow);
+      0 28px 56px var(--card-glow);
     z-index: 5;
   }
+}
+
+// Širina: tablet/mobil cqi; desktop 4 u redu — blizu 250–270px, 4*card+3*gap < cqi
+.home__carousel__clip .home__features__row--track .home-card {
+  $g: $carousel-gap;
+  flex: 0 0 auto;
+  min-width: 0;
+  user-select: none;
+  position: relative;
+  z-index: 0;
+
+  @media (max-width: 1023px) {
+    width: calc(
+      (100cqi - (var(--n, 4) - 1) * #{$g}) / var(--n, 4)
+    );
+    max-width: 100%;
+  }
+
+  @media (min-width: 1024px) {
+    width: min(270px, calc((100cqi - 3 * #{$g}) / 4));
+  }
+
+  &:hover,
+  &:focus-visible {
+    transform: scale(1.05) rotate(0deg);
+    z-index: 8;
+  }
+
+  &:hover .home-card__visual,
+  &:focus-visible .home-card__visual {
+    transform: none;
+  }
+
+  @for $i from 1 through 8 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{( $i - 1 ) * 0.04}s;
+    }
+  }
+}
+
+@keyframes homeCardRise {
+  from {
+    opacity: 0;
+    transform: rotate(var(--rot, 0deg)) translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(var(--rot, 0deg)) translate3d(0, 0, 0);
+  }
+}
+
+.home-card__badge {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  z-index: 4;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  padding: 0.28rem 0.5rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+  pointer-events: none;
 }
 
 .home-card__visual {
@@ -314,8 +555,14 @@ a.home-card--link {
   line-height: 1;
   transition: transform 0.42s cubic-bezier(0.23, 1, 0.32, 1);
 
-  .home-card:hover & {
-    transform: scale(1.12) translateY(-6px);
+  .home-card:hover &,
+  .home-card:focus-visible & {
+    transform: scale(1.04) translateY(-2px);
+  }
+
+  .home__carousel__clip .home__features__row--track .home-card:hover &,
+  .home__carousel__clip .home__features__row--track .home-card:focus-visible & {
+    transform: none;
   }
 }
 
@@ -512,9 +759,9 @@ a.home-card--link {
   align-items: center;
 }
 
-// ── Feature highlights ────────────────────────────────────────────────────────
+// ── Donji “feature” blok (tekst) — ovo nije isto što i hero kartice (bila kolizija imena) ─
 
-.home__features {
+.home__highlights {
   display: flex;
   gap: 2rem;
   width: 100%;

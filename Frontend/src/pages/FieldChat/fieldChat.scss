@@ -1,0 +1,325 @@
+// Chat za smer — staklasti header, poruke s senkom, typing
+
+.fc {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  background: #f0f4fc;
+
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 65% 50% at 8% 25%, rgba(124, 58, 237, 0.16) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 45% at 92% 20%, rgba(6, 182, 212, 0.14) 0%, transparent 52%),
+      linear-gradient(175deg, #f8fafc 0%, #eef2ff 40%, #ecfeff 100%);
+  }
+}
+
+.fc__shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  max-width: 46rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.fc__header {
+  flex-shrink: 0;
+  margin: 1rem 1rem 0.75rem;
+  padding: 1.1rem 1.25rem 1.15rem;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 8px 32px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.95) inset;
+}
+
+.fc__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.fc__back {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #6d28d9;
+  text-decoration: none;
+  padding: 0.35rem 0.55rem;
+  margin: -0.35rem;
+  border-radius: 10px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(124, 58, 237, 0.1);
+  }
+}
+
+.fc__title {
+  font-size: clamp(1.15rem, 3.5vw, 1.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+  background: linear-gradient(115deg, #0f172a, #5b21b6 50%, #0e7490);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.fc__kicker {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  text-align: center;
+  margin: 0 0 0.35rem;
+}
+
+.fc__sub {
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #64748b;
+  text-align: center;
+  margin: 0;
+  padding: 0.5rem 0.65rem 0.2rem;
+  background: linear-gradient(90deg, rgba(124, 58, 237, 0.06), rgba(6, 182, 212, 0.06));
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.fc__sub-strong {
+  font-weight: 800;
+  color: #5b21b6;
+}
+
+.fc__thread {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.6rem 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  box-sizing: border-box;
+  min-height: 12rem;
+}
+
+.fc__empty {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 1.5rem 0.5rem 1rem;
+  padding: 1.75rem 1.2rem;
+  border-radius: 18px;
+  border: 1px dashed rgba(124, 58, 237, 0.22);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.fc__empty-icon {
+  display: block;
+  font-size: 2.5rem;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  opacity: 0.9;
+}
+
+.fc__msg {
+  max-width: 92%;
+  padding: 0.75rem 1rem 0.85rem;
+  border-radius: 18px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  position: relative;
+  animation: fcMsgIn 0.32s ease-out;
+}
+
+@keyframes fcMsgIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fc__msg-meta {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  opacity: 0.85;
+}
+
+.fc__msg--user {
+  align-self: flex-end;
+  background: linear-gradient(140deg, #7c3aed 0%, #6d28d9 50%, #5b21b6 100%);
+  color: #fff;
+  border-bottom-right-radius: 5px;
+  box-shadow:
+    0 6px 24px rgba(91, 33, 182, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+
+  .fc__msg-meta {
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+.fc__msg--ai {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  color: #0f172a;
+  border-bottom-left-radius: 5px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.07);
+
+  .fc__msg-meta {
+    color: #7c3aed;
+  }
+}
+
+.fc__msg--typing {
+  min-width: 4.5rem;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.6rem 1rem;
+}
+
+.fc__dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: #7c3aed;
+  animation: fcBounce 1.2s ease-in-out infinite;
+
+  &:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+}
+
+@keyframes fcBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc__msg {
+    animation: none;
+  }
+
+  .fc__dot {
+    animation: none;
+  }
+}
+
+.fc__form {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding: 0.9rem 1rem 1.35rem;
+  display: flex;
+  gap: 0.6rem;
+  align-items: stretch;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.9) 35%, #fff 100%);
+  border-top: 1px solid rgba(124, 58, 237, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.fc__input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.65rem 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 14px;
+  font: inherit;
+  font-size: 0.9rem;
+  background: rgba(248, 250, 252, 0.95);
+  transition: box-shadow 0.2s, border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: rgba(124, 58, 237, 0.45);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+    background: #fff;
+  }
+}
+
+.fc__send {
+  flex-shrink: 0;
+  padding: 0.65rem 1.1rem;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #fff;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.25);
+  transition: transform 0.15s, filter 0.2s;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+.fc__err {
+  color: #b91c1c;
+  font-size: 0.82rem;
+  text-align: center;
+  padding: 0 1rem 0.35rem;
+  margin: 0;
+  font-weight: 600;
+}

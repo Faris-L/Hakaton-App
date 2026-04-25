@@ -355,33 +355,12 @@ $sim-indigo: #6366f1;
   color: #475569;
 }
 
-.sim-head__tts-voice {
-  margin: 0.4rem 0 0 0.15rem;
-  font-size: 0.7rem;
-  line-height: 1.4;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.sim-head__tts-voice-ic {
-  display: inline-block;
-  vertical-align: -0.12em;
-  margin-right: 0.2rem;
-  color: #64748b;
-  transition: color 0.4s, transform 0.35s;
-}
-
-.sim-head__tts--on .sim-head__tts-voice-ic {
-  color: #059669;
-  transform: scale(1.06);
-}
-
 .sim-head__tts-hint {
-  margin: 0.4rem 0 0 0.1rem;
+  margin: 0.45rem 0 0 0.1rem;
   font-size: 0.72rem;
-  line-height: 1.5;
+  line-height: 1.4;
   color: #475569;
-  max-width: 58ch;
+  max-width: 42ch;
   transition: color 0.35s;
 }
 

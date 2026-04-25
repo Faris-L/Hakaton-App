@@ -10,14 +10,25 @@ class AIController extends Controller
     public function ask(Request $request)
     {
         $request->validate([
-            'message' => 'required|string'
+            'message' => 'required|string',
+            'system' => 'nullable|string|max:12000',
         ]);
+
+        $messages = [];
+        if ($request->filled('system')) {
+            $messages[] = [
+                'role' => 'system',
+                'content' => (string) $request->string('system'),
+            ];
+        }
+        $messages[] = [
+            'role' => 'user',
+            'content' => (string) $request->string('message'),
+        ];
 
         $response = OpenAI::chat()->create([
             'model' => 'gpt-4o-mini',
-            'messages' => [
-                ['role' => 'user', 'content' => $request->message],
-            ],
+            'messages' => $messages,
         ]);
 
         return response()->json([

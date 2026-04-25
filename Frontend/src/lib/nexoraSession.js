@@ -15,7 +15,16 @@ const K = {
   currentUser: "nexoraCurrentUser", // nameKey
 };
 
-const FEATURES = ["simulation", "notes", "lectures", "flashcards"];
+const FEATURES = [
+  "simulation",
+  "notes",
+  "lectures",
+  "flashcards",
+  "study_planner",
+  "field_chat",
+  "ai_quiz",
+  "sources_ai",
+];
 
 export const FIELD_NAMES = {
   medicine: "Medicina",

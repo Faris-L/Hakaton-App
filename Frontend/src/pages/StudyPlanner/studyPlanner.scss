@@ -1,0 +1,319 @@
+// Planer učenja — Nexora: blob pozadina, staklasti paneli, akcent trake
+
+.sp {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  padding: 1.25rem 1rem 3rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  background: #f4f6fb;
+
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 55% at 12% 18%, rgba(124, 58, 237, 0.14) 0%, transparent 58%),
+      radial-gradient(ellipse 55% 50% at 88% 12%, rgba(6, 182, 212, 0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 45% 40% at 75% 88%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
+      linear-gradient(165deg, #f8fafc 0%, #eef2ff 42%, #f0fdfa 100%);
+  }
+}
+
+.sp__shell {
+  position: relative;
+  z-index: 1;
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.sp__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.15rem 1.1rem;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 4px 24px rgba(15, 23, 42, 0.06),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+}
+
+.sp__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #6d28d9;
+  text-decoration: none;
+  padding: 0.35rem 0.5rem;
+  margin: -0.35rem;
+  border-radius: 10px;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: rgba(124, 58, 237, 0.08);
+    color: #5b21b6;
+  }
+}
+
+.sp__head {
+  flex: 1;
+  min-width: 8rem;
+  text-align: center;
+}
+
+.sp__kicker {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin: 0 0 0.25rem;
+}
+
+.sp__title {
+  font-size: clamp(1.2rem, 4vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0;
+  background: linear-gradient(120deg, #0f172a 0%, #5b21b6 55%, #0891b2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sp__main {
+  position: relative;
+  z-index: 1;
+}
+
+.sp__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  padding: 1.35rem 1.35rem 1.4rem;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  box-shadow:
+    0 12px 40px rgba(79, 70, 229, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.95) inset;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 20px 0 0 20px;
+    background: linear-gradient(180deg, #7c3aed, #06b6d4);
+  }
+}
+
+.sp__form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sp__form-row--inline {
+  @media (min-width: 480px) {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 0.75rem;
+  }
+}
+
+.sp__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.sp__input,
+.sp__date {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 12px;
+  font: inherit;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  background: rgba(248, 250, 252, 0.9);
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: rgba(124, 58, 237, 0.45);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+    background: #fff;
+  }
+}
+
+.sp__add {
+  align-self: flex-start;
+  padding: 0.6rem 1.25rem;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 50%, #4f46e5 100%);
+  color: #fff;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow:
+    0 4px 16px rgba(79, 70, 229, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: transform 0.15s, filter 0.2s;
+
+  &:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.sp__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.sp__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.95rem 1rem 0.95rem 0.85rem;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+  transition: box-shadow 0.2s, border-color 0.2s;
+
+  &:hover {
+    box-shadow: 0 8px 28px rgba(124, 58, 237, 0.1);
+    border-color: rgba(124, 58, 237, 0.15);
+  }
+}
+
+.sp__item--done {
+  opacity: 0.85;
+  background: rgba(248, 250, 252, 0.95);
+
+  &:hover {
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+  }
+}
+
+.sp__item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.sp__item-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+  line-height: 1.35;
+}
+
+.sp__item--done .sp__item-title {
+  text-decoration: line-through;
+  color: #64748b;
+}
+
+.sp__item-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0;
+  padding: 0.15rem 0.5rem;
+  background: rgba(241, 245, 249, 0.9);
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.sp__item--done .sp__item-date {
+  opacity: 0.8;
+}
+
+.sp__check {
+  margin-top: 0.15rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: #7c3aed;
+}
+
+.sp__remove {
+  flex-shrink: 0;
+  border: none;
+  background: rgba(241, 245, 249, 0.9);
+  color: #94a3b8;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  transition: color 0.2s, background 0.2s;
+
+  &:hover {
+    color: #dc2626;
+    background: rgba(254, 226, 226, 0.9);
+  }
+}
+
+.sp__empty {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #64748b;
+  border: 2px dashed rgba(124, 58, 237, 0.2);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.sp__empty-icon {
+  display: block;
+  font-size: 2.25rem;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  filter: grayscale(0.1);
+}
