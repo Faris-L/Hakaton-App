@@ -1,6 +1,6 @@
 @use "../../styles/variables" as *;
 
-$board-line: rgba(15, 23, 42, 0.14);
+$board-line: rgba(255, 255, 255, 0.1);
 $hub-shadow:
   0 4px 6px -1px rgba(0, 0, 0, 0.08),
   0 10px 24px -6px rgba(0, 0, 0, 0.12);
@@ -20,15 +20,8 @@ $break: 720px;
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: linear-gradient(160deg, #f4f6fa 0%, #e8ecf2 100%);
-  color: #0f172a;
-}
-
-@media (prefers-color-scheme: dark) {
-  .intro {
-    background: linear-gradient(160deg, #0f1117 0%, #1a1d28 100%);
-    color: #e5e7eb;
-  }
+  background: #070910;
+  color: #f3f4f6;
 }
 
 /* --- Frame + board shell --- */
@@ -121,7 +114,7 @@ $break: 720px;
   border: 1.5px solid $board-line;
   border-radius: 0;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 @media (min-width: $break) {
@@ -359,10 +352,3 @@ $break: 720px;
   }
 }
 
-@media (min-width: $break) {
-  @media (prefers-color-scheme: dark) {
-    .board__quadrants {
-      background: rgba(0, 0, 0, 0.15);
-    }
-  }
-}
