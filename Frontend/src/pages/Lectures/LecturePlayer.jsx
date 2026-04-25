@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getLecturePlayUrl, postLectureSummarize } from "../../api/lecturesApi.js";
 
-/**
- * @param {{ lecture: object | null, open: boolean, onClose: () => void }} props
- */
 export default function LecturePlayer({ lecture, open, onClose }) {
   const mediaRef = useRef(null);
   const [playing, setPlaying] = useState(false);

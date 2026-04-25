@@ -31,7 +31,7 @@ $sim-indigo: #6366f1;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  // Prostor do dna (skrol na .app-root kada je ova ruta; vidi App.css)
+
   padding: 0 0 max(2.75rem, calc(1.25rem + env(safe-area-inset-bottom, 0px)));
   padding-top: 0;
 }
@@ -53,7 +53,6 @@ $sim-indigo: #6366f1;
   --sim-primary-600: #2f6fe0;
 }
 
-// ── Top bar ─────────────────────────────────────────────────
 .sim-top {
   flex-shrink: 0;
   background: #fff;
@@ -124,7 +123,6 @@ $sim-indigo: #6366f1;
   }
 }
 
-// ── Page heading ───────────────────────────────────────────
 .sim-head {
   max-width: 1200px;
   width: 100%;
@@ -419,7 +417,6 @@ $sim-indigo: #6366f1;
   width: calc(100% - 2.5rem);
 }
 
-// ── Layout ─────────────────────────────────────────────────
 .sim-layout {
   max-width: 1200px;
   width: 100%;
@@ -437,7 +434,6 @@ $sim-indigo: #6366f1;
   }
 }
 
-// ── Chat ───────────────────────────────────────────────────
 .sim-chat {
   background: #fff;
   border-radius: 16px;
@@ -517,7 +513,6 @@ $sim-indigo: #6366f1;
   text-align: center;
 }
 
-// Messages
 .sim-msg {
   max-width: 100%;
   display: flex;
@@ -657,7 +652,6 @@ $sim-indigo: #6366f1;
   letter-spacing: -0.1em;
 }
 
-// ── Input ──────────────────────────────────────────────────
 .sim-compose {
   border-top: 1px solid #e5e7eb;
   padding: 0.9rem 1rem 1.1rem;
@@ -808,7 +802,6 @@ $sim-indigo: #6366f1;
   }
 }
 
-// ── Sidebar ──────────────────────────────────────────────
 .sim-panel {
   position: relative;
 }

@@ -1,4 +1,4 @@
-// AI Kviz — topli naglas, kartica unosa, „papir" za pitanja
+
 
 .aq {
   position: relative;
@@ -227,6 +227,15 @@
   border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
+.aq__a-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+
 .aq__a-badge {
   display: inline-block;
   font-size: 0.58rem;
@@ -234,7 +243,28 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #b45309;
-  margin-bottom: 0.4rem;
+  margin: 0;
+}
+
+.aq__reveal {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #c2410c;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(234, 88, 12, 0.35);
+  border-radius: 8px;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    background: #fff;
+    border-color: rgba(234, 88, 12, 0.55);
+    box-shadow: 0 1px 8px rgba(234, 88, 12, 0.15);
+  }
 }
 
 .aq__a {
@@ -243,6 +273,29 @@
   line-height: 1.6;
   color: #44403c;
   font-weight: 500;
+  transition: filter 0.3s ease, opacity 0.2s ease;
+}
+
+.aq__a--mask,
+.aq__out--mask {
+  filter: blur(11px);
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+  opacity: 0.88;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq__a--mask,
+  .aq__out--mask {
+    filter: blur(0);
+    opacity: 0.14;
+  }
+
+  .aq__a,
+  .aq__out {
+    transition: none;
+  }
 }
 
 .aq__fallback-hint {
@@ -259,6 +312,12 @@
 .aq__out-wrap {
   position: relative;
   margin-top: 0.5rem;
+}
+
+.aq__out-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.4rem;
 }
 
 .aq__out-label {
@@ -289,6 +348,7 @@
     0 2px 0 rgba(120, 113, 108, 0.06) inset,
     0 16px 48px rgba(15, 23, 42, 0.08);
   min-height: 4rem;
+  transition: filter 0.3s ease, opacity 0.2s ease;
 
   &::before {
     content: "❓";

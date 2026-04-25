@@ -1,8 +1,3 @@
-/**
- * TTS klijenta: ElevenLabs preko backenda (POST /api/tts, eleven_multilingual_v2 u .env).
- * Pri grešci samo console.error; chat ostaje ispravan.
- */
-
 import { postTtsAudio } from "../api/client.js";
 
 const TTS_PATH = "/api/tts";
@@ -10,10 +5,6 @@ const TTS_PATH = "/api/tts";
 let activeCancel = null;
 let mediaUnlockAudioCtx = null;
 
-/**
- * Mora se pozvati sinhronu u istom handleru klika koji pokreće TTS, PRE prvog `await`
- * (mreža troši user-activation, pa inače `new Audio().play()` može tiho otkazati).
- */
 export function unlockAudioPlaybackFromUserGesture() {
   if (typeof window === "undefined") return;
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -33,7 +24,6 @@ export function unlockAudioPlaybackFromUserGesture() {
       o.start(0);
       o.stop(0.001);
     } catch {
-      /* ignore */
     }
   }
   try {
@@ -43,7 +33,6 @@ export function unlockAudioPlaybackFromUserGesture() {
       "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBIAAAABAAEABwA7";
     void a.play().catch(() => {});
   } catch {
-    /* ignore */
   }
 }
 
@@ -52,17 +41,11 @@ export function stopSimulationTts() {
     try {
       activeCancel();
     } catch {
-      /* ignore */
     }
     activeCancel = null;
   }
 }
 
-/**
- * @param {string} text
- * @param {{ onStart?: () => void, onEnd?: () => void }} [opts]
- * @returns {() => void} otkazivanje (npr. pre novog čitanja)
- */
 export function speakClientMessage(text, opts = {}) {
   const { onStart, onEnd } = opts;
   stopSimulationTts();
@@ -83,7 +66,6 @@ export function speakClientMessage(text, opts = {}) {
       try {
         URL.revokeObjectURL(objectUrl);
       } catch {
-        /* ignore */
       }
       objectUrl = null;
     }
@@ -93,7 +75,6 @@ export function speakClientMessage(text, opts = {}) {
         audioEl.removeAttribute("src");
         audioEl.load();
       } catch {
-        /* ignore */
       }
       audioEl = null;
     }
@@ -192,11 +173,6 @@ export function speakClientMessage(text, opts = {}) {
   };
 }
 
-/**
- * Nije potrebno čekati učitavanje pregledačkih glasova.
- * @param {() => void} onReady
- * @returns {() => void}
- */
 export function onTtsVoicesReady(onReady) {
   onReady();
   return () => {};

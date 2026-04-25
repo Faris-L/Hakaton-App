@@ -1,7 +1,3 @@
-/**
- * Fallback kada GET /lectures nije dostupan (mreža, migracija, itd.)
- * Ista polja kao Laravel JSON.
- */
 export const MOCK_LECTURES = [
   {
     id: 1,

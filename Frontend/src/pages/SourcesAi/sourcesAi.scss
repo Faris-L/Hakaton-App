@@ -1,4 +1,4 @@
-// Izvori + AI — dve ploče za unos, odgovor kao „citiran" blok
+
 
 .sa {
   position: relative;
@@ -73,7 +73,7 @@
   padding: 0.15rem 0 0.85rem;
   text-align: center;
   line-height: 1.05;
-  font-size: 0; /* child spans set size */
+  font-size: 0; 
 
   &::after {
     content: "";

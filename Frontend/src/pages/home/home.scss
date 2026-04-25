@@ -1,13 +1,15 @@
 @use "../../styles/variables" as *;
 
-// ── Theme tokens ──────────────────────────────────────────────────────────────
+$home-content-max: 1100px;
 
 .home--medicine   { --theme-blob: #{rgba($med-primary, 0.20)}; }
-.home--psychology { --theme-blob: #{rgba($psy-primary, 0.20)}; }
+.home--psychology {
+  --theme-blob: #{rgba($psy-primary, 0.20)};
+  padding: 20px 40px;
+}
 .home--economy    { --theme-blob: #{rgba($eco-primary, 0.20)}; }
 .home--it         { --theme-blob: #{rgba($it-primary,  0.20)}; }
 
-// Animated blobs shift diagonally
 @keyframes bgShift {
   0%   { background-position:  8% 12%, 92% 88%; }
   33%  { background-position: 92% 15%, 10% 82%; }
@@ -15,14 +17,12 @@
   100% { background-position:  8% 12%, 92% 88%; }
 }
 
-// ── Layout ────────────────────────────────────────────────────────────────────
-
 .home {
   position: relative;
   height: 100%;
   display: flex;
   flex-direction: column;
-  /* vidljiv hover / scale na karticama, ne reži vodoravno */
+  
   overflow-x: visible;
   overflow-y: auto;
 }
@@ -39,8 +39,6 @@
   animation: bgShift 14s ease-in-out infinite;
   pointer-events: none;
 }
-
-// ── Navbar ────────────────────────────────────────────────────────────────────
 
 .home__nav {
   position: relative;
@@ -150,8 +148,6 @@
   &:hover { color: #7c3aed; }
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
-
 .home__main {
   position: relative;
   z-index: 1;
@@ -164,8 +160,6 @@
   min-height: 0;
   overflow-x: visible;
 }
-
-// ── Hero ──────────────────────────────────────────────────────────────────────
 
 .home__hero {
   text-align: center;
@@ -196,10 +190,8 @@
   line-height: 1.6;
 }
 
-// ── Karusel: strelice, viewport, clip, trak (translateX)
-
 $carousel-gap: 20px;
-// Desktop: 4*card + 3*gap < unutrašnja širina clipa; maks. strip ≈ 4*270 + 3*20
+
 $carousel-desktop-row-max: calc(4 * 270px + 3 * #{$carousel-gap});
 
 .home__features {
@@ -250,7 +242,6 @@ $carousel-desktop-row-max: calc(4 * 270px + 3 * #{$carousel-gap});
   }
 }
 
-/* Stilizovane strelice: Nexora violet + teal akcenat, plutajući taster */
 .home__carousel__btn {
   flex-shrink: 0;
   display: flex;
@@ -310,7 +301,6 @@ $carousel-desktop-row-max: calc(4 * 270px + 3 * #{$carousel-gap});
   }
 }
 
-/* Rež: horizontalno, padding da hover/scale ne diraju ivice */
 .home__carousel__viewport {
   flex: 1 1 auto;
   min-width: 0;
@@ -333,7 +323,7 @@ $carousel-desktop-row-max: calc(4 * 270px + 3 * #{$carousel-gap});
   overflow: visible;
   min-width: 0;
   width: 100%;
-  /* cqi = unutrašnja širina (bez paddinga view‑porta) */
+  
   container-type: inline-size;
   container-name: home-carousel;
   margin-inline: auto;
@@ -345,7 +335,6 @@ $carousel-desktop-row-max: calc(4 * 270px + 3 * #{$carousel-gap});
   }
 }
 
-/* --n: broj celih vidljivih kartica (1 / 2 / 4) iz React-a */
 .home__features__row--track {
   display: flex;
   flex-direction: row;
@@ -367,8 +356,6 @@ $carousel-desktop-row-max: calc(4 * 270px + 3 * #{$carousel-gap});
   transform: scale(0.99) rotate(var(--rot, 0deg));
   opacity: 0.7;
 }
-
-// ── Card color tokens ─────────────────────────────────────────────────────────
 
 .home-card--scenario  {
   --card-surface:   #fff0f5;
@@ -419,8 +406,6 @@ $carousel-desktop-row-max: calc(4 * 270px + 3 * #{$carousel-gap});
   --card-glow:      rgba(109, 40, 217, 0.28);
 }
 
-// ── Card ──────────────────────────────────────────────────────────────────────
-
 a.home-card--link {
   text-decoration: none;
   color: inherit;
@@ -451,7 +436,6 @@ a.home-card--link {
     opacity   0.32s ease,
     box-shadow 0.42s ease;
 
-  // Glass highlight — simulates top-lit surface
   &::after {
     content: '';
     position: absolute;
@@ -479,7 +463,6 @@ a.home-card--link {
   }
 }
 
-// Širina: tablet/mobil cqi; desktop 4 u redu — blizu 250–270px, 4*card+3*gap < cqi
 .home__carousel__clip .home__features__row--track .home-card {
   $g: $carousel-gap;
   flex: 0 0 auto;
@@ -616,14 +599,13 @@ a.home-card--link {
   }
 }
 
-// ── Progress panel ────────────────────────────────────────────────────────────
-
 .home__progress {
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
   width: 100%;
-  max-width: 820px;
+  max-width: $home-content-max;
+  box-sizing: border-box;
   padding: 1.4rem 1.75rem 1.5rem;
   background: rgba(255, 255, 255, 0.88);
   border-radius: 22px;
@@ -759,67 +741,121 @@ a.home-card--link {
   align-items: center;
 }
 
-// ── Donji “feature” blok (tekst) — ovo nije isto što i hero kartice (bila kolizija imena) ─
-
-.home__highlights {
-  display: flex;
-  gap: 2rem;
+.home__whylearn {
   width: 100%;
-  max-width: 920px;
+  max-width: $home-content-max;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+}
 
-  @media (max-width: 720px) {
-    flex-direction: column;
-    gap: 0.9rem;
+.home__whylearn-title {
+  font-size: clamp(1.2rem, 2.6vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
+  max-width: 28ch;
+}
+
+.home__whylearn-sub {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #64748b;
+  margin: 0 0 0.35rem;
+  max-width: 40ch;
+}
+
+.home__whylearn-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  width: 100%;
+  margin-top: 0.35rem;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
   }
 }
 
-.home__feature {
-  flex: 1;
+.home__whylearn-card {
+  --whylearn-accent: #64748b;
+  position: relative;
   display: flex;
-  align-items: flex-start;
-  gap: 0.8rem;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.65rem;
+  padding: 1.4rem 1rem 1.35rem;
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-bottom: 3px solid var(--whylearn-accent);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+  box-sizing: border-box;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s;
+
+  &:hover {
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.1);
+    transform: translateY(-2px);
+  }
 }
 
-.home__feature-icon {
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--fi, #9ca3af) 14%, #fff 86%);
-  color: var(--fi, #9ca3af);
+.home__whylearn-card--pink {
+  --whylearn-accent: #f06292;
+}
+.home__whylearn-card--blue {
+  --whylearn-accent: #3b82f6;
+}
+.home__whylearn-card--green {
+  --whylearn-accent: #22c55e;
+}
+.home__whylearn-card--purple {
+  --whylearn-accent: #8b5cf6;
+}
+
+.home__whylearn-ic {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  svg {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--whylearn-accent) 18%, #fff);
+  color: var(--whylearn-accent);
 }
 
-.home__feature-title {
-  display: block;
-  font-size: 0.86rem;
-  font-weight: 700;
+.home__whylearn-card-title {
+  font-size: 0.92rem;
+  font-weight: 800;
   color: #0f172a;
-  margin-bottom: 0.2rem;
+  margin: 0;
+  line-height: 1.25;
+  font-family: var(--heading, var(--sans, inherit));
 }
 
-.home__feature-desc {
-  font-size: 0.77rem;
-  color: #64748b;
+.home__whylearn-card-desc {
+  font-size: 0.78rem;
   line-height: 1.5;
+  color: #64748b;
   margin: 0;
 }
-
-// ── Quote ─────────────────────────────────────────────────────────────────────
 
 .home__quote {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.4rem;
-  padding-bottom: 0.5rem;
+  padding-bottom: 1.25rem;
 }
 
 .home__quote-mark {
@@ -848,4 +884,59 @@ a.home-card--link {
   &::after {
     background: linear-gradient(90deg, rgba(0, 0, 0, 0.15), transparent);
   }
+}
+
+.home__quote-social {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.65rem 0.9rem;
+  margin-top: 0.35rem;
+}
+
+.home__quote-avatars {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 0.2rem 0 0.35rem;
+}
+
+.home__quote-av {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2.5px solid #fff;
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.12);
+  margin-left: -0.5rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #e2e8f0;
+
+  &:first-child {
+    margin-left: 0;
+  }
+}
+
+.home__quote-av-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+.home__quote-proof {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.home__quote-proof-num {
+  font-weight: 800;
+  color: #00e5c4;
+  font-variant-numeric: tabular-nums;
 }

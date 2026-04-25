@@ -1,8 +1,5 @@
 import { getLecturePlayUrl } from "../../api/lecturesApi.js";
 
-/**
- * @param {{ lecture: object, rot: string, onPusti: (l: object) => void, onEdit: () => void }} props
- */
 export default function LectureCard({ lecture, rot, onPusti, onEdit }) {
   const isVideo = lecture.type === "video";
   const playUrl = getLecturePlayUrl(lecture);

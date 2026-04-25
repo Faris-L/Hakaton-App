@@ -4,6 +4,7 @@ import { postAiAsk } from "../../api/client.js";
 import {
   FIELD_NAMES,
   getAccountField,
+  getInputPlaceholder,
   recordFeatureTouch,
   syncProfileFieldFromCurrentAccount,
 } from "../../lib/nexoraSession.js";
@@ -16,10 +17,7 @@ export default function FieldChatPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
-  const [messages, setMessages] = useState(
-    () =>
-      /** @type {{ role: "user" | "assistant"; text: string }[]} */ ([])
-  );
+  const [messages, setMessages] = useState(() => []);
   const endRef = useRef(null);
 
   const resetChat = useCallback(() => {
@@ -139,7 +137,7 @@ export default function FieldChatPage() {
             className="fc__input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Napiši pitanje…"
+            placeholder={getInputPlaceholder(field, "fieldChat")}
             disabled={loading}
             autoComplete="off"
             aria-label="Poruka"

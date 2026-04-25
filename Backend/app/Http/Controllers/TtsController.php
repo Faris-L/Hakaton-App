@@ -8,9 +8,6 @@ use Throwable;
 
 class TtsController extends Controller
 {
-    /**
-     * Text-to-Speech preko ElevenLabs (eleven_multilingual_v2; izbor balkanskog smera kroz glas u .env).
-     */
     public function synthesize(Request $request)
     {
         $data = $request->validate([

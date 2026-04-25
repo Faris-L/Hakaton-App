@@ -8,11 +8,11 @@ import {
   recordFeatureTouch,
   syncProfileFieldFromCurrentAccount,
 } from "../../lib/nexoraSession.js";
+import faceStudent1 from "../../assets/face.png";
+import faceStudent2 from "../../assets/face2.png";
+import faceStudent3 from "../../assets/face3.jpg";
 import "./home.scss";
 
-/** @typedef {{ id: string, theme: string, rot: string, emoji: string, title: string, description: string, cta: string, to: string, touch: string | null, badge?: string }} HomeFeature */
-
-/** @type {HomeFeature[]} */
 const FEATURES = [
   {
     id: "scenario",
@@ -139,9 +139,6 @@ const FIELD_ICONS = {
 
 const CAROUSEL_GAP_PX = 20;
 
-/**
- * 4 = desktop, 2 = tablet, 1 = mobile (broj celih kartica u viewportu)
- */
 function useVisibleSlideCount() {
   const [n, setN] = useState(4);
   useEffect(() => {
@@ -249,7 +246,6 @@ const Home = () => {
   <div className={`home home--${field}`}>
     <div className="home__bg" aria-hidden="true" />
 
-    {/* ── Navbar ─────────────────────────────────────────── */}
     <nav className="home__nav">
       <div className="home__nav-start">
         {FIELD_ICONS[field]}
@@ -286,10 +282,8 @@ const Home = () => {
       </div>
     </nav>
 
-    {/* ── Main ───────────────────────────────────────────── */}
     <main className="home__main">
 
-      {/* Hero */}
       <section className="home__hero">
         <h1 className="home__hero-title">
           Izaberi <span className="home__hero-gradient">način učenja</span>.
@@ -318,39 +312,41 @@ const Home = () => {
               className="home__carousel__viewport"
               style={{ ["--n"]: visibleCount }}
             >
-              <div className="home__carousel__clip">
-                <div
-                  ref={trackRef}
-                  className="home__features__row home__features__row--track"
-                  style={{
-                    transform: `translate3d(-${Number.isFinite(offsetPx) ? offsetPx : 0}px, 0, 0)`,
-                  }}
-                >
-                  {FEATURES.map((f) => (
-                    <Link
-                      key={f.id}
-                      to={f.to}
-                      className={`home-card home-card--${f.theme} home-card--link`}
-                      style={{ "--rot": f.rot }}
-                      onClick={() => {
-                        if (f.touch) recordFeatureTouch(f.touch, null);
-                      }}
-                    >
-                      {f.badge ? (
-                        <span className="home-card__badge">{f.badge}</span>
-                      ) : null}
-                      <div className="home-card__visual" aria-hidden="true">
-                        {f.emoji}
-                      </div>
-                      <div className="home-card__body">
-                        <h2 className="home-card__title">{f.title}</h2>
-                        <p className="home-card__desc">{f.description}</p>
-                        <span className="home-card__btn">
-                          {f.cta} →
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
+              <div className="home__carousel__mask">
+                <div className="home__carousel__clip">
+                  <div
+                    ref={trackRef}
+                    className="home__features__row home__features__row--track"
+                    style={{
+                      transform: `translate3d(-${Number.isFinite(offsetPx) ? offsetPx : 0}px, 0, 0)`,
+                    }}
+                  >
+                    {FEATURES.map((f) => (
+                      <Link
+                        key={f.id}
+                        to={f.to}
+                        className={`home-card home-card--${f.theme} home-card--link`}
+                        style={{ "--rot": f.rot }}
+                        onClick={() => {
+                          if (f.touch) recordFeatureTouch(f.touch, null);
+                        }}
+                      >
+                        {f.badge ? (
+                          <span className="home-card__badge">{f.badge}</span>
+                        ) : null}
+                        <div className="home-card__visual" aria-hidden="true">
+                          {f.emoji}
+                        </div>
+                        <div className="home-card__body">
+                          <h2 className="home-card__title">{f.title}</h2>
+                          <p className="home-card__desc">{f.description}</p>
+                          <span className="home-card__btn">
+                            {f.cta} →
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -369,7 +365,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Progress panel */}
       <div className="home__progress">
         <div className="home__progress-header">
           <div className="home__progress-icon" aria-hidden="true">
@@ -414,58 +409,81 @@ const Home = () => {
         </Link>
       </div>
 
-      {/* Feature highlights */}
-      <div className="home__highlights">
-        <div className="home__feature">
-          <span className="home__feature-icon" style={{ "--fi": "#f06292" }}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="24" height="24">
-              <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" fill="currentColor" />
-            </svg>
-          </span>
-          <div>
-            <strong className="home__feature-title">Fokusirano učenje</strong>
-            <p className="home__feature-desc">Alati dizajnirani da ti pomognu da ostaneš fokusiran.</p>
-          </div>
+      <section className="home__whylearn" aria-labelledby="home-whylearn-h2">
+        <h2 id="home-whylearn-h2" className="home__whylearn-title">
+          Zašto će ti ovo pomoći u učenju?
+        </h2>
+        <p className="home__whylearn-sub">
+          Naši alati koriste AI da ti olakšaju učenje i ubrzaju napredak.
+        </p>
+        <div className="home__whylearn-grid">
+          <article className="home__whylearn-card home__whylearn-card--pink">
+            <div className="home__whylearn-ic" aria-hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="26" height="26">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="5" />
+                <circle cx="12" cy="12" r="1" fill="currentColor" />
+              </svg>
+            </div>
+            <h3 className="home__whylearn-card-title">Fokusirano učenje</h3>
+            <p className="home__whylearn-card-desc">
+              AI izdvaja najbitnije delove gradiva i uklanja distrakcije.
+            </p>
+          </article>
+          <article className="home__whylearn-card home__whylearn-card--blue">
+            <div className="home__whylearn-ic" aria-hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="26" height="26">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+            </div>
+            <h3 className="home__whylearn-card-title">Sigurno i privatno</h3>
+            <p className="home__whylearn-card-desc">
+              Tvoji podaci i napredak su zaštićeni i vezani za tvoj nalog.
+            </p>
+          </article>
+          <article className="home__whylearn-card home__whylearn-card--green">
+            <div className="home__whylearn-ic" aria-hidden>
+              <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
+                <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z" />
+              </svg>
+            </div>
+            <h3 className="home__whylearn-card-title">Učenje bilo gde</h3>
+            <p className="home__whylearn-card-desc">
+              Pristupi svojim beleškama, karticama i kvizovima kad god želiš.
+            </p>
+          </article>
+          <article className="home__whylearn-card home__whylearn-card--purple">
+            <div className="home__whylearn-ic" aria-hidden>
+              <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
+                <path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+              </svg>
+            </div>
+            <h3 className="home__whylearn-card-title">Zajednica</h3>
+            <p className="home__whylearn-card-desc">Poveži se sa drugima i uči zajedno brže.</p>
+          </article>
         </div>
-        <div className="home__feature">
-          <span className="home__feature-icon" style={{ "--fi": "#3b82f6" }}>
-            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-              <path d="M12 2L3 7v6c0 5.3 3.8 9.7 9 10.9C17.2 22.7 21 18.3 21 13V7L12 2z" />
-            </svg>
-          </span>
-          <div>
-            <strong className="home__feature-title">Sigurno i privatno</strong>
-            <p className="home__feature-desc">Tvoji podaci su zaštićeni. Uči bez brige.</p>
-          </div>
-        </div>
-        <div className="home__feature">
-          <span className="home__feature-icon" style={{ "--fi": "#06b6d4" }}>
-            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-              <path d="M17.65 6.35A7.96 7.96 0 0 0 12 4C7.58 4 4 7.58 4 12s3.58 8 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
-            </svg>
-          </span>
-          <div>
-            <strong className="home__feature-title">Sinhronizuj se</strong>
-            <p className="home__feature-desc">Pristupi svom sadržaju bilo gde, bilo kada.</p>
-          </div>
-        </div>
-        <div className="home__feature">
-          <span className="home__feature-icon" style={{ "--fi": "#8b5cf6" }}>
-            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-              <path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-            </svg>
-          </span>
-          <div>
-            <strong className="home__feature-title">Zajednica</strong>
-            <p className="home__feature-desc">Poveži se sa drugima i razmenjuj znanje.</p>
-          </div>
-        </div>
-      </div>
+      </section>
 
-      {/* Quote */}
       <div className="home__quote">
         <span className="home__quote-mark" aria-hidden="true">❝</span>
         <p className="home__quote-text">Uči pametno. Razumi duboko. Primeni sigurno.</p>
+        <div className="home__quote-social" aria-label="Zajednica studenata">
+          <div className="home__quote-avatars" aria-hidden>
+            <span className="home__quote-av">
+              <img className="home__quote-av-img" src={faceStudent1} alt="" width="32" height="32" decoding="async" />
+            </span>
+            <span className="home__quote-av">
+              <img className="home__quote-av-img" src={faceStudent2} alt="" width="32" height="32" decoding="async" />
+            </span>
+            <span className="home__quote-av">
+              <img className="home__quote-av-img" src={faceStudent3} alt="" width="32" height="32" decoding="async" />
+            </span>
+          </div>
+          <p className="home__quote-proof">
+            Pridružilo se <strong className="home__quote-proof-num">10.000+</strong> studenata
+          </p>
+        </div>
       </div>
 
     </main>

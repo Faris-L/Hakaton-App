@@ -1,18 +1,10 @@
-/**
- * Nalozi: korisničko ime (globalno) povezano sa jednim smerom.
- * Isti pregledač može imati više različitih naloga; svako ime samo na jedan smer.
- * Statistike su po nalogu.
- */
-
 const K = {
   fieldCommitted: "nexoraFieldCommitted",
-  /** @deprecated migrirano u registry */
   account: "nexoraAccount",
   session: "nexoraSession",
-  /** @deprecated po korisniku u registry */
   stats: "nexoraStats",
-  registry: "nexoraAccountsRegistry", // { [nameKey]: { name, passEnc, field, createdAt, stats } }
-  currentUser: "nexoraCurrentUser", // nameKey
+  registry: "nexoraAccountsRegistry",
+  currentUser: "nexoraCurrentUser",
 };
 
 const FEATURES = [
@@ -32,6 +24,56 @@ export const FIELD_NAMES = {
   psychology: "Psihologija",
   it: "Informatika",
 };
+
+const INPUT_PLACEHOLDERS = {
+  it: {
+    aiQuizTopic: "npr. SQL indeksi, vremenska složenost, async/await, HTTP…",
+    flashTitle: "npr. Baze podataka — transakcije i indeksi",
+    flashGenTopic: "npr. rekurzija, keš, JWT, validacija ulaza",
+    studyTask: "npr. Reši zadatak sa petljama, skica REST rute, debug izlaza",
+    simAnswer: "Napiši odgovor: objašnjenje, primer koda, sledeći korak…",
+    sourcesPaste: "Npr. odlomak koda, dokumentacija, pitanja sa kolokvijuma…",
+    sourcesQuestion: "Šta pitaš o ovom kodu, algoritmu ili očekivanim test slučajevima?",
+    fieldChat: "Npr. u čemu je greška, šta vraća upit, složenost algoritma…",
+  },
+  medicine: {
+    aiQuizTopic: "npr. anemija, EKG, insulinska terapija, Cushing, troponin…",
+    flashTitle: "npr. Endokrinologija ispit, kardio farmak, digestiv",
+    flashGenTopic: "npr. dejstvo ACE inhibitora, DVT dijagnoza, uobičajeni CRP, toksičnost leka",
+    studyTask: "npr. Ponovi patofiziologiju infarkta, kriterijum za anemiju",
+    simAnswer: "Napiši kako bi odgovorio pacijentu: savet, tumačenje, sledeći korak…",
+    sourcesPaste: "Npr. smernice, stav pitanja sa ispit, sažetak sa predavanja…",
+    sourcesQuestion: "Šta iz ovog pasusa treba pojašnjenje (dijagnoza, lek, kriterijum)?",
+    fieldChat: "Npr. kriterijum dijagnoze, mehanizam leka, tumačenje laboratorije…",
+  },
+  economy: {
+    aiQuizTopic: "npr. tržišna ravnoteža, monopol, kamate, BDP, fiskalna politika…",
+    flashTitle: "npr. Mikroekonomija — cena i ponuda",
+    flashGenTopic: "npr. efikasnost Pareto, inflacija, devalvacija, budžetska restrikcija",
+    studyTask: "npr. Zadatak s elastičnošću, graf krive ponude, maks. profit",
+    simAnswer: "Napiši odgovor: brojke, ograničenja, jasan strateški savet…",
+    sourcesPaste: "Npr. izvod iz člana, tabela, pitanja sa ispitne liste…",
+    sourcesQuestion: "Šta iz tabele/teksta treba tumačiti, izračunati ili povezati?",
+    fieldChat: "Npr. šta pomeri krivu ponude, dejstvo poreza, očekivanja…",
+  },
+  psychology: {
+    aiQuizTopic: "npr. KBT tehnike, stres, validacija, Piaget, etika istraživanja…",
+    flashTitle: "npr. Klinička psih. — anksioznost, psihometrija",
+    flashGenTopic: "npr. kognitivne iskrivljenja, faze promene, locus kontrole, ljestve i validnost",
+    studyTask: "npr. Kartica: interpretacija ljestvica, protokol u vežbi, slučaj",
+    simAnswer: "Napiši odgovor: empatičan, u skladu s principom, bez suđenja, sledeći korak…",
+    sourcesPaste: "Npr. odlomak skripte, opis slučaja, stav pitanja…",
+    sourcesQuestion: "Kako ovo primeniti u vežbi, ili šta znači rezultat testa u kontekstu?",
+    fieldChat: "Npr. iskrivljenje u mislima, faza prilagođavanja, etički dillema…",
+  },
+};
+
+export function getInputPlaceholder(fieldId, part) {
+  const id =
+    fieldId && INPUT_PLACEHOLDERS[fieldId] ? fieldId : "it";
+  const row = INPUT_PLACEHOLDERS[id];
+  return row[part] || INPUT_PLACEHOLDERS.it[part] || "";
+}
 
 const VALID_FIELD_IDS = new Set(Object.keys(FIELD_NAMES));
 
@@ -79,7 +121,7 @@ function userKey(nameRaw) {
 function ensureRegistry() {
   let reg = readJson(K.registry, null);
   if (reg && typeof reg === "object" && !Array.isArray(reg)) {
-    return reg;
+    return migrateRegistryProfiles(reg);
   }
 
   const migrated = {};
@@ -94,6 +136,10 @@ function ensureRegistry() {
       field: VALID_FIELD_IDS.has(field) ? field : "it",
       createdAt: legacy.createdAt || new Date().toISOString(),
       stats: normalizeStats(oldStats),
+      firstName: "",
+      lastName: "",
+      faculty: "",
+      address: "",
     };
     localStorage.removeItem(K.account);
     if (localStorage.getItem(K.stats) != null) {
@@ -101,11 +147,42 @@ function ensureRegistry() {
     }
   }
   localStorage.setItem(K.registry, JSON.stringify(migrated));
-  return migrated;
+  return migrateRegistryProfiles(migrated);
+}
+
+function migrateRegistryProfiles(reg) {
+  if (!reg || typeof reg !== "object") return reg;
+  let dirty = false;
+  for (const k of Object.keys(reg)) {
+    const a = reg[k];
+    if (!a || typeof a !== "object") continue;
+    if (
+      a.firstName === undefined ||
+      a.lastName === undefined ||
+      a.faculty === undefined ||
+      a.address === undefined
+    ) {
+      reg[k] = normalizeAccountProfile(a);
+      dirty = true;
+    }
+  }
+  if (dirty) saveRegistry(reg);
+  return reg;
 }
 
 function saveRegistry(reg) {
   localStorage.setItem(K.registry, JSON.stringify(reg));
+}
+
+function normalizeAccountProfile(a) {
+  if (!a || typeof a !== "object") return a;
+  return {
+    ...a,
+    firstName: typeof a.firstName === "string" ? a.firstName : "",
+    lastName: typeof a.lastName === "string" ? a.lastName : "",
+    faculty: typeof a.faculty === "string" ? a.faculty : "",
+    address: typeof a.address === "string" ? a.address : "",
+  };
 }
 
 function normalizeStats(s) {
@@ -147,7 +224,6 @@ export function isSessionActive() {
   return Boolean(reg[k]);
 }
 
-/** Ključ naloga (lowercase) za API beleški — uvek uz aktivan session */
 export function getSessionUserKey() {
   if (localStorage.getItem(K.session) !== "1") return "";
   return getCurrentUserKey() || "";
@@ -165,16 +241,16 @@ function simpleDec(enc) {
   }
 }
 
-/** Trenutno prijavljen nalog ili null */
 export function getAccount() {
   if (localStorage.getItem(K.session) !== "1") return null;
   const k = getCurrentUserKey();
   if (!k) return null;
   const reg = ensureRegistry();
-  return reg[k] || null;
+  const a = reg[k];
+  if (!a) return null;
+  return normalizeAccountProfile(a);
 }
 
-/** Nakon učitavanja (npr. F5) uskladi smer i temu sa nalogom. */
 export function syncProfileFieldFromCurrentAccount() {
   const a = getAccount();
   if (!a?.field) return;
@@ -184,13 +260,11 @@ export function syncProfileFieldFromCurrentAccount() {
   applyFieldThemeForBody(a.field);
 }
 
-/**
- * Uloguj / registruj za smer u `localStorage.selectedField` (mora posle Intra).
- * Ako korisničko ime postoji na drugom smeru — greška sa nazivom smera.
- */
-export function tryLoginOrRegister(nameRaw, passRaw) {
+export function tryLoginOrRegister(nameRaw, passRaw, profile = null) {
   const name = (nameRaw || "").trim();
   const pass = passRaw || "";
+  const isRegister = profile?.register === true;
+
   if (name.length < 2) {
     return { ok: false, error: "Korisničko ime: najmanje 2 znaka." };
   }
@@ -205,9 +279,15 @@ export function tryLoginOrRegister(nameRaw, passRaw) {
 
   const key = userKey(name);
   const reg = ensureRegistry();
-  const existing = reg[key];
+  const existing = reg[key] ? normalizeAccountProfile(reg[key]) : null;
 
   if (existing) {
+    if (isRegister) {
+      return {
+        ok: false,
+        error: "Korisničko ime je zauzeto. Pređi na „Prijavljivanje” ili unesi drugo ime.",
+      };
+    }
     if (existing.field !== field) {
       const fLabel = FIELD_NAMES[existing.field] || existing.field;
       return {
@@ -224,12 +304,42 @@ export function tryLoginOrRegister(nameRaw, passRaw) {
     return { ok: true, isNew: false };
   }
 
+  if (!isRegister) {
+    return {
+      ok: false,
+      error:
+        "Nalog s tim korisničkim imenom ne postoji. Na tabu „Kreiraj nalog” možeš da se registruješ.",
+    };
+  }
+
+  const firstName = (profile?.firstName || "").trim();
+  const lastName = (profile?.lastName || "").trim();
+  const faculty = (profile?.faculty || "").trim();
+  const address = (profile?.address || "").trim();
+
+  if (firstName.length < 2) {
+    return { ok: false, error: "Ime: najmanje 2 znaka." };
+  }
+  if (lastName.length < 2) {
+    return { ok: false, error: "Prezime: najmanje 2 znaka." };
+  }
+  if (faculty.length < 2) {
+    return { ok: false, error: "Fakultet / ustanova: unesi naziv (npr. FON, ETF…)." };
+  }
+  if (address.length < 4) {
+    return { ok: false, error: "Adresa: unesi ulicu, grad (npr. Bulevar 1, Beograd)." };
+  }
+
   const acc = {
     name,
     passEnc: simpleEnc(pass),
     field,
     createdAt: new Date().toISOString(),
     stats: makeDefaultStats(),
+    firstName,
+    lastName,
+    faculty,
+    address,
   };
   reg[key] = acc;
   saveRegistry(reg);
@@ -239,7 +349,20 @@ export function tryLoginOrRegister(nameRaw, passRaw) {
   return { ok: true, isNew: true };
 }
 
-/** Smer (bez brisanja naloga) – da sa logina možeš opet na uvod. */
+export function updateCurrentAccountProfile(patch) {
+  const k = getCurrentUserKey();
+  if (!k || localStorage.getItem(K.session) !== "1") return false;
+  const reg = ensureRegistry();
+  const a = reg[k] ? normalizeAccountProfile(reg[k]) : null;
+  if (!a) return false;
+  for (const key of ["firstName", "lastName", "faculty", "address"]) {
+    if (patch[key] !== undefined) a[key] = String(patch[key] ?? "").trim();
+  }
+  reg[k] = a;
+  saveRegistry(reg);
+  return true;
+}
+
 export function clearFieldSelectionForIntro() {
   localStorage.removeItem(K.fieldCommitted);
   localStorage.removeItem("selectedField");
@@ -252,7 +375,6 @@ export function clearFieldSelectionForIntro() {
   );
 }
 
-/** Odjavljivanje: briše intro-zaključavanje da možeš drugi smer / drugi nalog. Nalozi ostaju u memoriji. */
 export function logoutSession() {
   setSessionActive(false);
   setCurrentUserKey("");
@@ -350,7 +472,12 @@ export function avgToPercent(avg) {
 }
 
 export function getDisplayName() {
-  return getAccount()?.name ?? "";
+  const a = getAccount();
+  if (!a) return "";
+  const fn = (a.firstName || "").trim();
+  const ln = (a.lastName || "").trim();
+  if (fn || ln) return [fn, ln].filter(Boolean).join(" ");
+  return a.name || "";
 }
 
 export function getAccountField() {

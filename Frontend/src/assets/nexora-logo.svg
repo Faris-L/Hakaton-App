@@ -1,28 +1,22 @@
 <svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
   <rect width="400" height="400" fill="#ffffff"/>
 
-  <!-- Outer ring -->
   <circle cx="200" cy="200" r="170" fill="none" stroke="#00E5C4" stroke-width="1.5"/>
-  <!-- Inner ring -->
   <circle cx="200" cy="200" r="158" fill="none" stroke="#00E5C4" stroke-width="0.5" opacity="0.3"/>
 
-  <!-- Compass ticks -->
   <line x1="188" y1="31" x2="212" y2="31" stroke="#00E5C4" stroke-width="1.5"/>
   <line x1="188" y1="369" x2="212" y2="369" stroke="#00E5C4" stroke-width="1.5"/>
   <line x1="31" y1="188" x2="31" y2="212" stroke="#00E5C4" stroke-width="1.5"/>
   <line x1="369" y1="188" x2="369" y2="212" stroke="#00E5C4" stroke-width="1.5"/>
 
-  <!-- Dot accents -->
   <circle cx="200" cy="31" r="2.5" fill="#00E5C4"/>
   <circle cx="200" cy="369" r="2.5" fill="#00E5C4"/>
   <circle cx="31" cy="200" r="2.5" fill="#00E5C4"/>
   <circle cx="369" cy="200" r="2.5" fill="#00E5C4"/>
 
-  <!-- Divider lines -->
   <line x1="80" y1="170" x2="320" y2="170" stroke="#00E5C4" stroke-width="0.5" opacity="0.25"/>
   <line x1="80" y1="228" x2="320" y2="228" stroke="#00E5C4" stroke-width="0.5" opacity="0.25"/>
 
-  <!-- Wordmark -->
   <text x="200" y="218"
     font-family="'Courier New', Courier, monospace"
     font-size="52"

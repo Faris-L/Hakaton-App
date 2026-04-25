@@ -1,4 +1,3 @@
-/** Fallback kad API nije dostupan (isti oblik kao backend). */
 export const MOCK_FLASHCARD_SETS = [
   {
     id: 1,

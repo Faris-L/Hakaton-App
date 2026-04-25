@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { postJson } from "../../api/client.js";
-import { recordAiScore, syncProfileFieldFromCurrentAccount } from "../../lib/nexoraSession.js";
+import {
+  getInputPlaceholder,
+  recordAiScore,
+  syncProfileFieldFromCurrentAccount,
+} from "../../lib/nexoraSession.js";
 import {
   speakClientMessage,
   stopSimulationTts,
@@ -34,7 +38,6 @@ function getField() {
   return "it";
 }
 
-/** @param {{ role: string, text: string }[]} list */
 function toApiMessages(list) {
   return list.map((m) => ({
     role: m.role === "user" ? "user" : "assistant",
@@ -48,7 +51,6 @@ function formatTime(secs) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-/** @returns {typeof window.webkitSpeechRecognition | null} */
 function getSpeechRecognitionCtor() {
   if (typeof window === "undefined") return null;
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
@@ -173,7 +175,6 @@ export default function Simulacija() {
         r.onend = null;
         r.stop();
       } catch {
-        /* ignore */
       }
       speechRef.current = null;
     }
@@ -254,7 +255,6 @@ export default function Simulacija() {
         try {
           speechRef.current.stop();
         } catch {
-          /* ignore */
         }
         speechRef.current = null;
       }
@@ -641,7 +641,7 @@ export default function Simulacija() {
               id="sim-input"
               className="sim-input"
               rows={3}
-              placeholder="Napiši kratak odgovor klijentu…"
+              placeholder={getInputPlaceholder(field, "simAnswer")}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={!started || Boolean(feedback) || loading}
