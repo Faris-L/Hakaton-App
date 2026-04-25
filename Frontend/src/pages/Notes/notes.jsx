@@ -15,15 +15,6 @@ import {
 } from "../../api/client.js";
 import "./notes.scss";
 
-const SUBJECTS = [
-  { id: "medicine", label: "Medicina" },
-  { id: "psychology", label: "Psihologija" },
-  { id: "economy", label: "Ekonomija" },
-  { id: "it", label: "Informatika" },
-];
-
-const SUBJECT_BY_ID = Object.fromEntries(SUBJECTS.map((s) => [s.id, s.label]));
-
 const ROTS = ["-2deg", "1.5deg", "-1deg", "2.2deg", "-1.5deg", "0.5deg"];
 
 function formatDate(iso) {
@@ -40,7 +31,6 @@ function formatDate(iso) {
 }
 
 function NotesListView() {
-  const [filter, setFilter] = useState("all");
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
@@ -54,15 +44,16 @@ function NotesListView() {
   const load = useCallback(async () => {
     setLoading(true);
     setErr(null);
+    const subj = getAccountField() || "it";
     try {
-      const data = await fetchNotesList(filter);
+      const data = await fetchNotesList(subj);
       setNotes(Array.isArray(data) ? data : []);
     } catch (e) {
       setErr(e?.message || "Ne mogu učitati beleške.");
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, []);
 
   useEffect(() => {
     load();
@@ -77,22 +68,6 @@ function NotesListView() {
         <h1 className="notes__title">Beleške</h1>
         <div className="notes__toolbar">
           {me ? <span className="notes__user">{me}</span> : null}
-          <label className="visually-hidden" htmlFor="notes-filter">
-            Predmet
-          </label>
-          <select
-            id="notes-filter"
-            className="notes__filter"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-          >
-            <option value="all">Svi predmeti</option>
-            {SUBJECTS.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.label}
-              </option>
-            ))}
-          </select>
           <button
             type="button"
             className="notes__new"
@@ -129,7 +104,6 @@ function NotesListView() {
                     {n.title?.trim() || "Bez naslova"}
                   </h2>
                   <p className="notes__card-meta">
-                    {SUBJECT_BY_ID[n.subject] || n.subject} ·{" "}
                     {formatDate(n.created_at)}
                   </p>
                   <p className="notes__card-excerpt">
@@ -152,7 +126,6 @@ function NoteEditorView() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [subject, setSubject] = useState(() => getAccountField() || "it");
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [aiBusy, setAiBusy] = useState(false);
@@ -167,7 +140,6 @@ function NoteEditorView() {
     if (isNew) {
       setTitle("");
       setContent("");
-      setSubject((s) => getAccountField() || s || "it");
       setLoading(false);
       return;
     }
@@ -181,7 +153,7 @@ function NoteEditorView() {
       setLoading(true);
       setLoadErr(null);
       try {
-        const list = await fetchNotesList("all");
+        const list = await fetchNotesList(getAccountField() || "it");
         const n = (Array.isArray(list) ? list : []).find(
           (x) => x.id === idNum
         );
@@ -191,7 +163,6 @@ function NoteEditorView() {
         } else {
           setTitle(n.title || "");
           setContent(n.content || "");
-          setSubject(n.subject || "it");
         }
       } catch (e) {
         if (!cancelled) {
@@ -212,7 +183,7 @@ function NoteEditorView() {
     const body = {
       title: (title || "").trim() || "Bez naslova",
       content: content || "",
-      subject,
+      subject: getAccountField() || "it",
     };
     try {
       if (isNew) {
@@ -323,23 +294,7 @@ function NoteEditorView() {
               placeholder="Naslov beleške"
             />
           </div>
-          <div className="notes-editor__row">
-            <span className="notes-editor__label" id="note-subject-label">
-              Predmet
-            </span>
-            <select
-              className="notes-editor__select"
-              aria-labelledby="note-subject-label"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-            >
-              {SUBJECTS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <p className="notes-editor__hint">Predmet: onaj izabran na uvodu (nije moguća promena ovde).</p>
           <div className="notes-editor__row">
             <span className="notes-editor__label" id="note-content-label">
               Sadržaj

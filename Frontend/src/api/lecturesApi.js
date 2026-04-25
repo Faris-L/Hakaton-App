@@ -70,3 +70,53 @@ export async function fetchLectureById(id) {
 export async function postLectureSummarize(lectureId) {
   return postJson("/api/lectures/summarize", { lecture_id: lectureId });
 }
+
+/**
+ * @param {object} body
+ */
+export async function createLecture(body) {
+  return postJson("/lectures", body);
+}
+
+/**
+ * @param {number} id
+ * @param {object} body
+ */
+export async function updateLecture(id, body) {
+  const path = `/lectures/${id}`;
+  const url = path.startsWith("http") ? path : `${BASE}${path}`;
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  return parseRes(res);
+}
+
+/**
+ * @param {number} id
+ */
+export async function deleteLecture(id) {
+  const path = `/lectures/${id}`;
+  const url = path.startsWith("http") ? path : `${BASE}${path}`;
+  const res = await fetch(url, {
+    method: "DELETE",
+    headers: { Accept: "application/json" },
+  });
+  return parseRes(res);
+}
+
+async function parseRes(res) {
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(
+      data.error || data.message || `HTTP ${res.status}: ${res.statusText}`
+    );
+    err.data = data;
+    throw err;
+  }
+  return data;
+}

@@ -1,61 +1,46 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Route, Routes, useNavigate } from "react-router-dom";
 import {
   getDisplayName,
+  getAccountField,
   recordFeatureTouch,
   syncProfileFieldFromCurrentAccount,
 } from "../../lib/nexoraSession.js";
 import { fetchLecturesList } from "../../api/lecturesApi.js";
 import LectureCard from "./LectureCard.jsx";
 import LecturePlayer from "./LecturePlayer.jsx";
+import LectureEditor from "./LectureEditor.jsx";
 import "../home/home.scss";
 import "./lectures.scss";
 
-const SUBJECTS = [
-  { id: "all", label: "Svi predmeti" },
-  { id: "medicine", label: "Medicina" },
-  { id: "psychology", label: "Psihologija" },
-  { id: "economy", label: "Ekonomija" },
-  { id: "it", label: "Informatika" },
-];
-
 const ROTS = ["-2deg", "1.5deg", "-1.2deg", "2deg", "-1.5deg", "0.8deg", "-0.5deg", "1.2deg"];
 
-export default function LecturesPage() {
-  const [field, setField] = useState(
-    () => localStorage.getItem("selectedField") || "it"
-  );
-  const [filter, setFilter] = useState(
-    () => localStorage.getItem("selectedField") || "it"
-  );
+function LecturesListView() {
   const [lectures, setLectures] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
   const [active, setActive] = useState(null);
   const [playerOpen, setPlayerOpen] = useState(false);
   const me = getDisplayName();
+  const navigate = useNavigate();
 
   useEffect(() => {
     syncProfileFieldFromCurrentAccount();
-    setField(localStorage.getItem("selectedField") || "it");
-  }, []);
-
-  useEffect(() => {
-    recordFeatureTouch("lectures", null);
   }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
     setErr(null);
+    const subj = getAccountField() || "it";
     try {
-      const data = await fetchLecturesList(filter);
+      const data = await fetchLecturesList(subj);
       setLectures(Array.isArray(data) ? data : []);
     } catch (e) {
       setErr(e?.message || "Učitavanje predavanja nije uspelo.");
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, []);
 
   useEffect(() => {
     load();
@@ -72,9 +57,7 @@ export default function LecturesPage() {
   };
 
   return (
-    <div className={`lectures lectures--${field}`}>
-      <div className="lectures__bg" aria-hidden="true" />
-
+    <>
       <header className="lectures__nav">
         <Link to="/home" className="lectures__back">
           ← Početna
@@ -85,25 +68,17 @@ export default function LecturesPage() {
       <div className="lectures__hero">
         <h1 className="lectures__h1">Slušaj predavanja</h1>
         <p className="lectures__lead">
-          Audio i video zapisi podeljeni po predmetu. Pusti snimak, pauziraj koliko treba, ili zatraži kratak
-          sažetak u playeru.
+          Audio i video snimci za tvoj smer. Pusti zapis, pauziraj koliko treba, u playeru i kratak
+          sažetak, ili dodaj svoje povezivanjem URL-a.
         </p>
         <div className="lectures__toolbar">
-          <label className="visually-hidden" htmlFor="lectures-filter">
-            Filtar predmeta
-          </label>
-          <select
-            id="lectures-filter"
-            className="lectures__filter"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+          <button
+            type="button"
+            className="lectures__new"
+            onClick={() => navigate("new")}
           >
-            {SUBJECTS.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.label}
-              </option>
-            ))}
-          </select>
+            + Novo predavanje
+          </button>
         </div>
       </div>
 
@@ -113,7 +88,8 @@ export default function LecturesPage() {
           <p className="lectures__loading">Učitavanje…</p>
         ) : lectures.length === 0 ? (
           <p className="lectures__empty">
-            Nema predavanja za ovaj izbor. Probaj &quot;Svi predmeti&quot; ili poveži backend i pokreni seed.
+            Nema snimaka za tvoj smer. Dodaj prvo klikom na „+ Novo predavanje” ili poveži backend
+            (seed).
           </p>
         ) : (
           <div className="lectures__grid">
@@ -123,6 +99,7 @@ export default function LecturesPage() {
                 lecture={lec}
                 rot={ROTS[i % ROTS.length]}
                 onPusti={openPlayer}
+                onEdit={() => navigate(`${lec.id}/edit`)}
               />
             ))}
           </div>
@@ -130,6 +107,34 @@ export default function LecturesPage() {
       </main>
 
       <LecturePlayer lecture={active} open={playerOpen} onClose={closePlayer} />
+    </>
+  );
+}
+
+export default function LecturesPage() {
+  const [field, setField] = useState(
+    () => localStorage.getItem("selectedField") || "it"
+  );
+
+  useEffect(() => {
+    syncProfileFieldFromCurrentAccount();
+    setField(localStorage.getItem("selectedField") || "it");
+  }, []);
+
+  useEffect(() => {
+    recordFeatureTouch("lectures", null);
+  }, []);
+
+  return (
+    <div className={`lectures lectures--${field}`}>
+      <div className="lectures__bg" aria-hidden="true" />
+      <div className="lectures__routes">
+        <Routes>
+          <Route path="/" element={<LecturesListView />} />
+          <Route path="new" element={<LectureEditor />} />
+          <Route path=":id/edit" element={<LectureEditor />} />
+        </Routes>
+      </div>
     </div>
   );
 }

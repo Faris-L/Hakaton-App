@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, Route, Routes, useNavigate } from "react-router-dom";
 import {
+  getAccountField,
   getDisplayName,
   recordFeatureTouch,
   syncProfileFieldFromCurrentAccount,
@@ -11,18 +12,6 @@ import FlashcardEditor from "./FlashcardEditor.jsx";
 import FlashcardPractice from "./FlashcardPractice.jsx";
 import "../home/home.scss";
 import "./flashcards.scss";
-
-const SUBJECTS = [
-  { id: "all", label: "Svi predmeti" },
-  { id: "medicine", label: "Medicina" },
-  { id: "psychology", label: "Psihologija" },
-  { id: "economy", label: "Ekonomija" },
-  { id: "it", label: "Informatika" },
-];
-
-const SUBJECT_LAB = Object.fromEntries(
-  SUBJECTS.filter((s) => s.id !== "all").map((s) => [s.id, s.label])
-);
 
 const ROTS = [
   "2.5deg",
@@ -36,9 +25,6 @@ const ROTS = [
 ];
 
 function FlashcardListView() {
-  const [filter, setFilter] = useState(
-    () => localStorage.getItem("selectedField") || "it"
-  );
   const [sets, setSets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
@@ -52,15 +38,16 @@ function FlashcardListView() {
   const load = useCallback(async () => {
     setLoading(true);
     setErr(null);
+    const subj = getAccountField() || "it";
     try {
-      const data = await fetchFlashcardSets(filter);
+      const data = await fetchFlashcardSets(subj);
       setSets(Array.isArray(data) ? data : []);
     } catch (e) {
       setErr(e?.message || "Ne mogu učitati setove.");
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, []);
 
   useEffect(() => {
     load();
@@ -81,21 +68,6 @@ function FlashcardListView() {
           Uči pojmove kroz brze kartice i proveri koliko znaš.
         </p>
         <div className="fc-page__tool">
-          <label className="visually-hidden" htmlFor="fc-filter">
-            Predmet
-          </label>
-          <select
-            id="fc-filter"
-            className="fc-page__select"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-          >
-            {SUBJECTS.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.label}
-              </option>
-            ))}
-          </select>
           <button
             type="button"
             className="fc-page__new"
@@ -121,7 +93,6 @@ function FlashcardListView() {
                 key={s.id}
                 set={s}
                 rot={ROTS[i % ROTS.length]}
-                subjectLabel={SUBJECT_LAB[s.subject] || s.subject}
               />
             ))}
           </div>
