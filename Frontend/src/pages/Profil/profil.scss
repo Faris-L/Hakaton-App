@@ -1,0 +1,127 @@
+.profil {
+  min-height: 100%;
+  padding: 1.25rem 1.5rem 3rem;
+  max-width: 40rem;
+  margin: 0 auto;
+  box-sizing: border-box;
+  font-family: var(--sans, "Inter", system-ui, sans-serif);
+  color: #0f172a;
+  background: #f8f9fb;
+}
+
+.profil__bar {
+  margin-bottom: 1.25rem;
+}
+
+.profil__back {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4f46e5;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.profil__h1 {
+  margin: 0.75rem 0 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.profil__card {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+}
+
+.profil__meta,
+.profil__field,
+.profil__avg,
+.profil__note {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0 0 0.75rem;
+  color: #334155;
+}
+
+.profil__since {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.profil__h2 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.profil__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.profil__list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.88rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.profil__score {
+  font-weight: 700;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+
+.profil__note {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 1rem;
+}
+
+.profil__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.profil__btn {
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 0.65rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: #f1f5f9;
+  }
+}
+
+.profil__btn--danger {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+  &:hover {
+    background: #fee2e2;
+  }
+}

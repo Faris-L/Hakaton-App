@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { postJson } from "../../api/client.js";
+import { recordAiScore } from "../../lib/nexoraSession.js";
 import "./simulacija.scss";
 
 const FIELD_NAMES = {
@@ -278,6 +279,7 @@ export default function Simulacija() {
         user_message: t,
       });
       if (data.error) throw new Error(data.error);
+      recordAiScore("simulation", data.score);
       setFeedback({
         score: data.score,
         summary: data.summary,

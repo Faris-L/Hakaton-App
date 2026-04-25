@@ -1,5 +1,21 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  getDisplayName,
+  getFeatureAvg10,
+  getOverallAvg10,
+  avgToPercent,
+  recordFeatureTouch,
+  syncProfileFieldFromCurrentAccount,
+} from "../../lib/nexoraSession.js";
 import "./home.scss";
+
+const STAT_ID = {
+  scenario: "simulation",
+  notes: "notes",
+  lectures: "lectures",
+  flashcards: "flashcards",
+};
 
 const features = [
   {
@@ -70,8 +86,32 @@ const FIELD_ICONS = {
 };
 
 const Home = () => {
-  const field = localStorage.getItem("selectedField") || "it";
+  const [field, setField] = useState(
+    () => localStorage.getItem("selectedField") || "it"
+  );
+
+  useEffect(() => {
+    syncProfileFieldFromCurrentAccount();
+    setField(localStorage.getItem("selectedField") || "it");
+  }, []);
+
   const fieldName = FIELD_NAMES[field] || "Informatika";
+  const me = getDisplayName();
+  const overallAvg = getOverallAvg10();
+  const overallPct = overallAvg != null ? avgToPercent(overallAvg) : null;
+  const progressRows = [
+    { label: "Simulacija scenarija", key: "simulation", color: "#f06292" },
+    { label: "Beleške", key: "notes", color: "#3b82f6" },
+    { label: "Predavanja", key: "lectures", color: "#8b5cf6" },
+    { label: "Flash cards", key: "flashcards", color: "#22c55e" },
+  ].map((r) => {
+    const a = getFeatureAvg10(r.key);
+    return {
+      ...r,
+      pct: a != null ? avgToPercent(a) : null,
+    };
+  });
+
   return (
   <div className={`home home--${field}`}>
     <div className="home__bg" aria-hidden="true" />
@@ -80,7 +120,10 @@ const Home = () => {
     <nav className="home__nav">
       <div className="home__nav-start">
         {FIELD_ICONS[field]}
-        <span className="home__nav-label">{fieldName}</span>
+        <div className="home__nav-block">
+          <span className="home__nav-label">{fieldName}</span>
+          {me ? <span className="home__nav-user">Zdravo, {me}</span> : null}
+        </div>
       </div>
 
       <div className="home__nav-logo-wrap">
@@ -126,6 +169,7 @@ const Home = () => {
       {/* Feature cards */}
       <div className="home__grid">
         {features.map((f) => {
+          const statId = STAT_ID[f.id];
           const body = (
             <>
               <div className="home-card__visual" aria-hidden="true">{f.emoji}</div>
@@ -135,7 +179,13 @@ const Home = () => {
                 {f.id === "scenario" ? (
                   <span className="home-card__btn">{f.cta} →</span>
                 ) : (
-                  <button type="button" className="home-card__btn">
+                  <button
+                    type="button"
+                    className="home-card__btn"
+                    onClick={() => {
+                      recordFeatureTouch(statId, null);
+                    }}
+                  >
                     {f.cta} →
                   </button>
                 )}
@@ -178,31 +228,34 @@ const Home = () => {
             <span className="home__progress-sub">Pogledaj statistiku svog učenja i ostvari svoje ciljeve.</span>
           </div>
           <div className="home__progress-score">
-            <span className="home__progress-pct">72%</span>
-            <span className="home__progress-pct-label">ukupno</span>
+            <span className="home__progress-pct">
+              {overallPct != null ? `${overallPct}%` : "—"}
+            </span>
+            <span className="home__progress-pct-label">prosek (AI)</span>
           </div>
         </div>
 
         <div className="home__progress-bars">
-          {[
-            { label: "Simulacija scenarija", pct: 78, color: "#f06292" },
-           { label: "Beleške",              pct: 65, color: "#3b82f6" },
-            { label: "Predavanja",           pct: 90, color: "#8b5cf6" },
-            { label: "Flash cards",          pct: 55, color: "#22c55e" },
-         ].map((item) => (
+          {progressRows.map((item) => (
             <div key={item.label} className="home__progress-row">
               <span className="home__progress-label">{item.label}</span>
               <div className="home__progress-bar">
-                <div className="home__progress-fill" style={{ width: `${item.pct}%`, "--bar": item.color }} />
+                <div
+                  className="home__progress-fill"
+                  style={{
+                    width: `${item.pct != null ? item.pct : 0}%`,
+                    "--bar": item.color,
+                  }}
+                />
               </div>
-              <span className="home__progress-num">{item.pct}%</span>
+              <span className="home__progress-num">{item.pct != null ? `${item.pct}%` : "—"}</span>
             </div>
           ))}
         </div>
 
-        <button type="button" className="home__progress-link">
+        <Link to="/profil" className="home__progress-link home__progress-link--as-btn">
           OTVORI STATISTIKU →
-        </button>
+        </Link>
       </div>
 
       {/* Feature highlights */}

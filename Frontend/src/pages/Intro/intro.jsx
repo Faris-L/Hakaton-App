@@ -1,4 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import {
+  isFieldCommitted,
+  isSessionActive,
+  setFieldCommitted,
+} from "../../lib/nexoraSession.js";
 import medicinaImg from "../../assets/medicina.png";
 import ekonomijaImg from "../../assets/ekonomija.png";
 import psihologijaImg from "../../assets/psihologija.png";
@@ -131,12 +137,20 @@ function FieldIcon({ id }) {
 export default function Intro() {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (isFieldCommitted()) {
+      if (isSessionActive()) navigate("/home", { replace: true });
+      else navigate("/login", { replace: true });
+    }
+  }, [navigate]);
+
   const selectField = (field) => {
     localStorage.setItem("selectedField", field.id);
     localStorage.setItem("hasSelectedOption", "true");
+    setFieldCommitted();
     document.body.classList.remove(...BODY_THEMES);
     document.body.classList.add(field.themeClass);
-    navigate("/home");
+    navigate("/login");
   };
 
   return (
