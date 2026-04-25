@@ -2,7 +2,11 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { postJson } from "../../api/client.js";
 import { recordAiScore, syncProfileFieldFromCurrentAccount } from "../../lib/nexoraSession.js";
-import { speakClientMessage, stopSimulationTts } from "../../lib/simulationTts.js";
+import {
+  speakClientMessage,
+  stopSimulationTts,
+  unlockAudioPlaybackFromUserGesture,
+} from "../../lib/simulationTts.js";
 import "./simulacija.scss";
 
 const FIELD_NAMES = {
@@ -261,6 +265,7 @@ export default function Simulacija() {
   }, []);
 
   const startConversation = useCallback(async () => {
+    unlockAudioPlaybackFromUserGesture();
     stopVoice();
     stopClientTts();
     setError("");
@@ -297,6 +302,7 @@ export default function Simulacija() {
   };
 
   const onSend = async () => {
+    unlockAudioPlaybackFromUserGesture();
     const t = input.trim();
     if (!t || !started || feedback || loading) return;
     stopVoice();
@@ -365,6 +371,7 @@ export default function Simulacija() {
   };
 
   const onTtsButton = (msg) => {
+    unlockAudioPlaybackFromUserGesture();
     if (speakingId === msg.id) {
       stopClientTts();
       return;
