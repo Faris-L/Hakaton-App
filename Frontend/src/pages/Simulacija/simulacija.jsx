@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { postJson } from "../../api/client.js";
-import { recordAiScore } from "../../lib/nexoraSession.js";
+import { recordAiScore, syncProfileFieldFromCurrentAccount } from "../../lib/nexoraSession.js";
 import "./simulacija.scss";
 
 const FIELD_NAMES = {
@@ -20,14 +20,21 @@ const THEME_BODY = {
 
 const ALL_THEMES = Object.values(THEME_BODY);
 
-const TOTAL = 10;
-const DEFAULT_MIN = 10;
+const DEFAULT_MIN = 20;
 
 function getField() {
   const s = localStorage.getItem("selectedField");
   if (s === "medicine" || s === "psychology" || s === "economy" || s === "it")
     return s;
   return "it";
+}
+
+/** @param {{ role: string, text: string }[]} list */
+function toApiMessages(list) {
+  return list.map((m) => ({
+    role: m.role === "user" ? "user" : "assistant",
+    content: m.text,
+  }));
 }
 
 function formatTime(secs) {
@@ -82,10 +89,8 @@ function FieldBadgeIcon({ field }) {
 
 export default function Simulacija() {
   const navigate = useNavigate();
-  const [field] = useState(getField);
+  const [field, setField] = useState(getField);
   const [started, setStarted] = useState(false);
-  const [scenarioIndex, setScenarioIndex] = useState(1);
-  const [scenarioText, setScenarioText] = useState("");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [feedback, setFeedback] = useState(null);
@@ -97,6 +102,12 @@ export default function Simulacija() {
   const speechRef = useRef(null);
 
   const fieldName = FIELD_NAMES[field] || "Informatika";
+  const hasUserMessage = messages.some((m) => m.role === "user");
+
+  useEffect(() => {
+    syncProfileFieldFromCurrentAccount();
+    setField(getField());
+  }, []);
 
   useEffect(() => {
     const t = THEME_BODY[field] || THEME_BODY.it;
@@ -210,73 +221,106 @@ export default function Simulacija() {
     };
   }, []);
 
-  const loadScenario = useCallback(
-    async (index) => {
-      stopVoice();
-      setError("");
-      setLoading(true);
-      try {
-        const data = await postJson("/simulation/start", { field, index });
-        if (data.error) throw new Error(data.error);
-        const n = Number(data.index) || index;
-        setScenarioIndex(n);
-        setScenarioText(data.assistant_message);
-        setMessages((m) => [
-          ...m,
-          {
-            role: "ai",
-            text: data.assistant_message,
-            label: "AI simulacija",
-            id: `ai-${n}-${Date.now()}`,
-          },
-        ]);
-        setSecondsLeft((data.minutes || DEFAULT_MIN) * 60);
-        setStarted(true);
-        setFeedback(null);
-        setInput("");
-      } catch (e) {
-        setError(e.message || "Greška pri učitavanju.");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [field, stopVoice]
-  );
+  const startConversation = useCallback(async () => {
+    stopVoice();
+    setError("");
+    setLoading(true);
+    try {
+      const data = await postJson("/simulation/start", { field });
+      if (data.error) throw new Error(data.error);
+      const n = {
+        role: "ai",
+        text: data.assistant_message,
+        id: `ai-start-${Date.now()}`,
+        label: "AI simulacija",
+      };
+      setMessages([n]);
+      setSecondsLeft(DEFAULT_MIN * 60);
+      setStarted(true);
+      setFeedback(null);
+      setInput("");
+    } catch (e) {
+      setError(e.message || "Greška pri učitavanju.");
+    } finally {
+      setLoading(false);
+    }
+  }, [field, stopVoice]);
 
   const onKreni = () => {
     if (loading) return;
     setMessages([]);
-    setScenarioIndex(1);
-    loadScenario(1);
+    setFeedback(null);
+    startConversation();
   };
 
   const onSend = async () => {
     const t = input.trim();
-    if (!t || !scenarioText || feedback || loading) return;
+    if (!t || !started || feedback || loading) return;
     stopVoice();
     setError("");
-    setLoading(true);
+
     const timeStr = new Date().toLocaleTimeString("sr-RS", {
       hour: "2-digit",
       minute: "2-digit",
     });
-    setMessages((m) => [
-      ...m,
-      {
-        role: "user",
-        text: t,
-        time: timeStr,
-        id: `u-${Date.now()}`,
-      },
-    ]);
+    const umsg = { role: "user", text: t, time: timeStr, id: `u-${Date.now()}` };
+    const next = [...messages, umsg];
     setInput("");
+    setLoading(true);
 
+    try {
+      const userTurns = next.filter((m) => m.role === "user").length;
+      const data = await postJson("/simulation/turn", {
+        field,
+        user_turns: userTurns,
+        messages: toApiMessages(next),
+      });
+      if (data.error) throw new Error(data.error);
+
+      const aimsg = {
+        role: "ai",
+        text: data.assistant_message,
+        id: `ai-${Date.now()}`,
+        label: "AI simulacija",
+      };
+      const withAi = [...next, aimsg];
+      setMessages(withAi);
+
+      if (data.end_conversation) {
+        const ev = await postJson("/simulation/evaluate", {
+          field,
+          messages: toApiMessages(withAi),
+        });
+        if (ev.error) throw new Error(ev.error);
+        recordAiScore("simulation", ev.score);
+        setFeedback({
+          score: ev.score,
+          summary: ev.summary,
+          good: ev.good || [],
+          improve: ev.improve || [],
+          ideal: ev.ideal,
+        });
+      }
+    } catch (e) {
+      setError(e.message || "Slanje nije uspelo.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onZavrsiSimulaciju = async () => {
+    if (feedback || loading || !started) return;
+    if (!hasUserMessage) {
+      setError("Napiši bar jedan odgovor u razgovoru, pa završi, ili pritisni „Pošalji” kad klijent zahvali.");
+      return;
+    }
+    stopVoice();
+    setError("");
+    setLoading(true);
     try {
       const data = await postJson("/simulation/evaluate", {
         field,
-        scenario_index: scenarioIndex,
-        scenario_text: scenarioText,
-        user_message: t,
+        messages: toApiMessages(messages),
       });
       if (data.error) throw new Error(data.error);
       recordAiScore("simulation", data.score);
@@ -288,20 +332,18 @@ export default function Simulacija() {
         ideal: data.ideal,
       });
     } catch (e) {
-      setError(e.message || "Slanje nije uspelo.");
+      setError(e.message || "Ocenjivanje nije uspelo.");
     } finally {
       setLoading(false);
     }
   };
 
-  const onNext = async () => {
-    if (loading) return;
-    if (scenarioIndex >= TOTAL) {
-      navigate("/home");
-      return;
-    }
-    if (!feedback) return;
-    await loadScenario(scenarioIndex + 1);
+  const onNovaSimulacija = () => {
+    setFeedback(null);
+    setMessages([]);
+    setInput("");
+    setStarted(false);
+    setError("");
   };
 
   const onAttach = () => fileRef.current?.click();
@@ -363,12 +405,13 @@ export default function Simulacija() {
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden>
               <path d="M8 5v14l11-7z" />
             </svg>
-            Kreni simulaciju
+            {started ? "Počni iznova" : "Kreni simulaciju"}
           </button>
         </div>
-        <h1 className="sim-title">Simulacija životnog scenarija</h1>
+        <h1 className="sim-title">Jedan životni razgovor</h1>
         <p className="sim-sub">
-          Razgovaraj, daj svoj odgovor i saznaj kako možeš još bolje.
+          Klijent pita, ti odgovaraš — kratko, 2–3 razmene, pa zahvala ili pritisak na „Završi
+          simulaciju”. Tada dolazi ocena.
         </p>
       </div>
 
@@ -380,24 +423,36 @@ export default function Simulacija() {
 
       <div className="sim-layout">
         <div className="sim-chat">
-          <div className="sim-chat__status">
+          <div className="sim-chat__status sim-chat__status--row">
             <span>
-              Scenario {scenarioIndex} od {TOTAL}
+              {started ? "Jedan razgovor" : "Nije pokrenuto"}
             </span>
-            <span className="sim-chat__timer" title="Preostalo vreme za scenarij">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 7v5l3 2" strokeLinecap="round" />
-              </svg>
-              − {formatTime(Math.max(0, secondsLeft))}
-            </span>
+            <div className="sim-chat__status-right">
+              {started && !feedback ? (
+                <button
+                  type="button"
+                  className="sim-end-chat"
+                  onClick={onZavrsiSimulaciju}
+                  disabled={loading}
+                >
+                  Završi simulaciju
+                </button>
+              ) : null}
+              <span className="sim-chat__timer" title="Vreme do kraja režimskog ograničenja">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 2" strokeLinecap="round" />
+                </svg>
+                {formatTime(Math.max(0, secondsLeft))}
+              </span>
+            </div>
           </div>
 
           <div className="sim-chat__stream">
             {!started && (
               <p className="sim-placeholder">
-                Klikni <strong>„Kreni simulaciju”</strong> — učitavamo prvi scenarij za
-                smer <strong>{fieldName}</strong>.
+                Klikni <strong>„Kreni simulaciju”</strong> — klijent (AI) otvara kratku situaciju i
+                postavlja pitanje. Odgovarajući par puta zatvara priču; možeš i ti završiti kad god.
               </p>
             )}
 
@@ -425,7 +480,7 @@ export default function Simulacija() {
                     </span>
                   )}
                   <span className="sim-msg__who">
-                    {msg.role === "ai" ? "AI simulacija" : "Ti"}
+                    {msg.role === "ai" ? "Klijent (AI)" : "Ti"}
                   </span>
                 </div>
                 <div className="sim-msg__bubble">
@@ -451,7 +506,7 @@ export default function Simulacija() {
               id="sim-input"
               className="sim-input"
               rows={3}
-              placeholder="Napiši svoj odgovor…"
+              placeholder="Napiši kratak odgovor klijentu…"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={!started || Boolean(feedback) || loading}
@@ -492,10 +547,19 @@ export default function Simulacija() {
                 </svg>
               </button>
             </div>
-            <p className="sim-hint">
-              Glas se pretvara u tekst (Chrome/Edge). Klikni ponovo da zaustaviš. Ili
-              napiši odgovor u polje.
-            </p>
+            {started && !feedback ? (
+              <p className="sim-hint sim-hint--foot">
+                <button type="button" className="sim-hint__end" onClick={onZavrsiSimulaciju} disabled={loading}>
+                  Završi simulaciju
+                </button>
+                {" "}
+                — uvek ocenjuje cela ćaskanja (i kad AI prvo završi, i kad klikneš ovde).
+              </p>
+            ) : (
+              <p className="sim-hint">
+                Glas se pretvara u tekst (Chrome/Edge). Ili napiši u polje.
+              </p>
+            )}
           </div>
         </div>
 
@@ -521,7 +585,10 @@ export default function Simulacija() {
                 </>
               ) : (
                 <div className="sim-score--empty">
-                  <p>Pošalji odgovor da vidiš ocenu i povratne informacije.</p>
+                  <p>
+                    Ocena stiže posle <strong>završetka razgovora</strong> (hvala od klijenta) ili
+                    pritiskom na <strong>Završi simulaciju</strong>.
+                  </p>
                 </div>
               )}
             </div>
@@ -554,26 +621,21 @@ export default function Simulacija() {
                     <span className="sim-block__ico sim-block__ico--bulb" aria-hidden>
                       💡
                     </span>{" "}
-                    Predlog idealnog pristupa
+                    Predlog pristupa
                   </h3>
                   <p className="sim-ideal-text">{feedback.ideal}</p>
                 </section>
+                <div className="sim-panel__foot">
+                  <Link to="/home" className="sim-next">
+                    Početna
+                    <span aria-hidden> →</span>
+                  </Link>
+                  <button type="button" className="sim-again" onClick={onNovaSimulacija}>
+                    Nova simulacija
+                  </button>
+                </div>
               </>
             ) : null}
-
-            <button
-              type="button"
-              className="sim-next"
-              onClick={onNext}
-              disabled={!feedback || loading}
-            >
-              {!feedback
-                ? "Sačekaj ocenu"
-                : scenarioIndex >= TOTAL
-                  ? "Završi"
-                  : "Sledeći scenario"}
-              <span aria-hidden> →</span>
-            </button>
           </div>
         </aside>
       </div>

@@ -13,7 +13,7 @@ import {
 import "./profil.scss";
 
 const ROWS = [
-  { label: "Simulacija scenarija", key: "simulation" },
+  { label: "Simulacija (razgovor)", key: "simulation" },
   { label: "Beleške", key: "notes" },
   { label: "Predavanja", key: "lectures" },
   { label: "Flash cards", key: "flashcards" },

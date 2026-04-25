@@ -22,8 +22,8 @@ const features = [
     id: "scenario",
     rot: "-3deg",
     emoji: "🎭",
-    title: "Simulacija životnog scenarija",
-    description: "Uđi u realne situacije iz tvoje oblasti i donosi odluke.",
+    title: "Jedan životni razgovor",
+    description: "Kratak dijalog s AI klijentom, pa ocena pristupa — bez niza scenarija.",
     cta: "ZAPOČNI",
   },
   {
@@ -100,7 +100,7 @@ const Home = () => {
   const overallAvg = getOverallAvg10();
   const overallPct = overallAvg != null ? avgToPercent(overallAvg) : null;
   const progressRows = [
-    { label: "Simulacija scenarija", key: "simulation", color: "#f06292" },
+    { label: "Simulacija (razgovor)", key: "simulation", color: "#f06292" },
     { label: "Beleške", key: "notes", color: "#3b82f6" },
     { label: "Predavanja", key: "lectures", color: "#8b5cf6" },
     { label: "Flash cards", key: "flashcards", color: "#22c55e" },
